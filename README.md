@@ -7,13 +7,13 @@ donde $$coef = 2^{30} -1$$
 
 teniendo en cuenta los siguientes datos:
 
-–Probabilidad de Crossover = 0,75
-–Probabilidad de Mutación = 0,05
-–Población Inicial: 10 individuos
-–Ciclos del programa: 20
-–Método de Selección: Ruleta
-–Método de Crossover: 1 Punto
-–Método de Mutación: invertida
+* Probabilidad de Crossover = 0,75
+* Probabilidad de Mutación = 0,05
+* Población Inicial: 10 individuos
+* Ciclos del programa: 20
+* Método de Selección: Ruleta
+* Método de Crossover: 1 Punto
+* Método de Mutación: invertida
 
 ## Opción A:
 El programa debe mostrar, finalmente, el Cromosoma correspondiente al valor máximo, el valor máximo, mínimo y promedio obtenido de cada población.
