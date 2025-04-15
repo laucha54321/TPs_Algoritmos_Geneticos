@@ -1,6 +1,7 @@
 import random
+from guardarVectores import guardarVectoresJson
 
-def generar_vector(longitud=30):
+def generarVector(longitud=30):
     """
     Genera un vector (lista) de valores aleatorios.
     
@@ -12,11 +13,21 @@ def generar_vector(longitud=30):
     """
     return [random.choice([0, 1]) for _ in range(longitud)]
 
-def generar_poblacion(longitud=10):
+def generarPoblacion(longitud=10):
     pobl = []
     for i in range(longitud):
-        pobl.append(generar_vector())
+        pobl.append(generarVector())
     return pobl
-# Ejemplo de uso
-poblacion = generar_poblacion()
+
+def crossover(vect1, vect2):
+    if(random.random()>0,75):
+        ## Aca hacemos el crossover si aplica
+        print()
+    else:
+        return vect1, vect2
+    
+poblacion = generarPoblacion()
+
+guardarVectoresJson(poblacion)
+
 print(poblacion)
