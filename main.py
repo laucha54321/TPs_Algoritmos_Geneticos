@@ -45,11 +45,28 @@ def crossover(vect1, vect2):
     else:
         return vect1, vect2
     
+
+def binarioDecimal(vector):
+    decimal=0
+    for i in range(len(vector)):
+            if vector[i] == 1:
+                decimal += 2 ** (len(vector) - 1 - i)
+    return decimal
+
+# Aplicar la funcion fitness al decimal
+COEF = 2**30 - 1
+
+def fitness(decimal):
+   
+    return (decimal / COEF) ** 2
+
 ''' 
 Tenemos que Desarollar:
     * La funcion que convierte los vectores (binario) a decimal.
     INPUT: Vector de la forma [0,0,1,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,1,0,0,1,1,0] con longitud variable. 
     OUTPUT: El numero correcto en decimal, por ejemplo 10. 
+
+    
 
     * La funcion que evalua el fitness con el numero ya en decimal.
     INPUT: Numero Decimal por ejemplo 10.
@@ -65,5 +82,23 @@ Tenemos que Desarollar:
 
 Por ahora creo que eso seria lo mas principal, despues vamos a tener que integrar y loopear todo, pero hagamos el desarollo de estas cosas para una sola instancia y despues vemos como loopeamos llamando a las funciones. 
 '''
+
+# Generar un vector binario
+vector = generarVector()
+
+# Convertir binario a decimal
+x_decimal = binarioDecimal(vector)
+
+# Mostrar el vector binario ysu conversion a decimal
+print(f"binario: {vector}")
+print(f"decimal: {x_decimal}")
+
+# Calcular fitness
+fitness_value = fitness(x_decimal)
+
+# Mostrar el fitness calculado
+print(f"Fitness de {x_decimal} es: {fitness_value}")
+
+
 
 print(crossover(generarVector(),generarVector()))
