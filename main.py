@@ -4,24 +4,25 @@ from guardarVectores import guardarVectoresJson
 PROBABILIDAD_DE_CROSSOVER = 0.75
 LONGITUD_DE_LOS_VECTORES = 30
 TAMAÑO_DE_LA_POBLACION = 10
+COEF = 2**30 - 1
 
 
-def generarVector(longitud=30):
 # Genera un vector aleatorio de longitud 30 por defecto
+def generarVector(longitud=30):
     return [random.choice([0, 1]) for _ in range(longitud)]
 
-def generarPoblacion(longitud=10):
 # Utiliza la funcion generarVector para generar una poblacion de vectores, longitud en este caso es el tamaño de la poblacion.
+def generarPoblacion(longitud=10):
     pobl = []
     for i in range(longitud):
         pobl.append(generarVector())
     return pobl
 
-def crossover(vect1, vect2):
 # Crossover devuelve los dos pares de vectores resultados del crossover o devuelve los dos padres directamente en caso de no haber crossover.
+def crossover(vect1, vect2):
 
+    # Cruzamos un solo par de vectores en esta funcion
     def cruzarVector(vect1, vect2):
-        # Cruzamos un solo par de vectores en esta funcion
         posicionSplit = int(random.random() * len(vect1) + 1)
         
         # Separamos los vectores vect1 y vect2 en dos partes (Left y Right)
@@ -45,7 +46,7 @@ def crossover(vect1, vect2):
     else:
         return vect1, vect2
     
-
+# Transforma el vector de binario a un valor decimal
 def binarioDecimal(vector):
     decimal=0
     for i in range(len(vector)):
@@ -53,25 +54,49 @@ def binarioDecimal(vector):
                 decimal += 2 ** (len(vector) - 1 - i)
     return decimal
 
-# Aplicar la funcion fitness al decimal
-COEF = 2**30 - 1
-
+# Funcion de fitness dada en la consigna, hay que aplicarla al vector transformado a decimal con la funcion binarioDecimal()
 def fitness(decimal):
-   
     return (decimal / COEF) ** 2
+
+# Calcula el fitness promedio de la poblacion que se le pasa como parametro
+def fitnessPromedioPoblacion(poblacion):
+    promedio = 0
+    for p in poblacion:
+        promedio += fitness(binarioDecimal(p))
+    promedio = promedio / len(poblacion)
+    return promedio
+
+# Calcula el individuo con fitness mas alto en la poblacion que se le pasa como parametro.
+def fitnessMaxPoblacion(poblacion):
+    max = fitness(binarioDecimal(poblacion[0]))
+    for p in poblacion:
+        if(max < fitness(binarioDecimal(p))):
+            max = fitness(binarioDecimal(p))
+    return max
+
+# Calcula el individuo con el peor fitness en la poblacion que se le paso como parametro.
+def fitnessMinPoblacion(poblacion):
+    min = fitness(binarioDecimal(poblacion[0]))
+    for p in poblacion:
+        if(min > fitness(binarioDecimal(p))):
+            min = fitness(binarioDecimal(p))
+    return min
+
+# Te hace un print con los fitness, promedios, maximos y minimos de la poblacion que se la pasa como paramtetro.
+def printInfoPoblacion(poblacion):
+    print("\n######## Datos de la Poblacion ########\n")
+    i=0
+    for p in poblacion:
+        i += 1
+        print("Fitness Vector ", i, ": ",fitness(binarioDecimal(p)))
+    print("\nPromedio: ",fitnessPromedioPoblacion(poblacion))
+    print("Max: ",fitnessMaxPoblacion(poblacion))
+    print("Min: ",fitnessMinPoblacion(poblacion))
+    print("\n")
+
 
 ''' 
 Tenemos que Desarollar:
-    * La funcion que convierte los vectores (binario) a decimal.
-    INPUT: Vector de la forma [0,0,1,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,0,1,1,0,1,0,1,0,0,1,1,0] con longitud variable. 
-    OUTPUT: El numero correcto en decimal, por ejemplo 10. 
-
-    
-
-    * La funcion que evalua el fitness con el numero ya en decimal.
-    INPUT: Numero Decimal por ejemplo 10.
-    OUTPUT: Numero Decimal resultado de aplicar la funcion de fitness.
-
     * La funcion que obtiene los fitness relativos a la poblacion.
     
     * La ruleta que va a tener distintos pesos para cada vector dependiendo del fitness. 
@@ -84,21 +109,23 @@ Por ahora creo que eso seria lo mas principal, despues vamos a tener que integra
 '''
 
 # Generar un vector binario
-vector = generarVector()
+# vector = generarVector(LONGITUD_DE_LOS_VECTORES)
 
 # Convertir binario a decimal
-x_decimal = binarioDecimal(vector)
+# x_decimal = binarioDecimal(vector)
 
 # Mostrar el vector binario ysu conversion a decimal
-print(f"binario: {vector}")
-print(f"decimal: {x_decimal}")
+# print(f"binario: {vector}")
+# print(f"decimal: {x_decimal}")
 
 # Calcular fitness
-fitness_value = fitness(x_decimal)
+# fitness_value = fitness(x_decimal)
 
 # Mostrar el fitness calculado
-print(f"Fitness de {x_decimal} es: {fitness_value}")
+#print(f"Fitness de {x_decimal} es: {fitness_value}")
 
 
+pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
+printInfoPoblacion(pobl)
 
-print(crossover(generarVector(),generarVector()))
+#print(crossover(generarVector(),generarVector()))
