@@ -6,23 +6,25 @@ LONGITUD_DE_LOS_VECTORES = 30
 TAMAÑO_DE_LA_POBLACION = 10
 COEF = 2**30 - 1
 
+Vector = list[int]
+Poblacion = list[Vector]
 
 # Genera un vector aleatorio de longitud 30 por defecto
-def generarVector(longitud=30):
+def generarVector(longitud: int=30)->Vector:
     return [random.choice([0, 1]) for _ in range(longitud)]
 
 # Utiliza la funcion generarVector para generar una poblacion de vectores, longitud en este caso es el tamaño de la poblacion.
-def generarPoblacion(longitud=10):
+def generarPoblacion(longitud: int = 10) -> Poblacion:
     pobl = []
     for i in range(longitud):
         pobl.append(generarVector())
     return pobl
 
 # Crossover devuelve los dos pares de vectores resultados del crossover o devuelve los dos padres directamente en caso de no haber crossover.
-def crossover(vect1, vect2):
+def crossover(vector1: Vector, vector2: Vector):
 
     # Cruzamos un solo par de vectores en esta funcion
-    def cruzarVector(vect1, vect2):
+    def cruzarVector(vect1: list[int], vect2:list[int]):
         posicionSplit = int(random.random() * len(vect1) + 1)
         
         # Separamos los vectores vect1 y vect2 en dos partes (Left y Right)
@@ -45,9 +47,9 @@ def crossover(vect1, vect2):
     
     else:
         return vect1, vect2
-    
+
 # Transforma el vector de binario a un valor decimal
-def binarioDecimal(vector):
+def binarioDecimal(vector: Vector) -> int:
     decimal=0
     for i in range(len(vector)):
             if vector[i] == 1:
@@ -93,6 +95,7 @@ def printInfoPoblacion(poblacion):
     print("Max: ",fitnessMaxPoblacion(poblacion))
     print("Min: ",fitnessMinPoblacion(poblacion))
     print("\n")
+
 
 
 ''' 
