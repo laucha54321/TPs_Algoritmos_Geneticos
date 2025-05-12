@@ -98,6 +98,29 @@ def printInfoPoblacion(poblacion):
 
 
 
+#Calcula el Fitness Relativo de cada individuo de la poblacion que se pasa como parametro
+
+def fitnessRelativoPoblacion(poblacion: Poblacion) -> list[float]:
+    listaFitness: list[float] = []
+
+    for individuo in poblacion:
+        decimal = binarioDecimal(individuo)
+        fitIndividuo = fitness(decimal)
+        listaFitness.append(fitIndividuo)
+   
+    total = 0
+    for f in listaFitness:
+        total += f
+  
+
+    listaRelativos: list[float] = []
+    for f in listaFitness:
+        fitRelativo = f / total
+        listaRelativos.append(fitRelativo)
+
+    return listaRelativos
+
+
 ''' 
 Tenemos que Desarollar:
     * La funcion que obtiene los fitness relativos a la poblacion.
