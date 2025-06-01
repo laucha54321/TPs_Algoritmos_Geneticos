@@ -9,23 +9,21 @@ COEF = 2**30 - 1
 Vector = list[int]
 Poblacion = list[Vector]
 
-
-# Genera un vector aleatorio de longitud 30 por defecto
 def generarVector(longitud: int=30)->Vector:
+    '''Genera un vector aleatorio de longitud 30 por defecto'''
     return [random.choice([0, 1]) for _ in range(longitud)]
 
-# Utiliza la funcion generarVector para generar una poblacion de vectores, longitud en este caso es el tamaño de la poblacion.
 def generarPoblacion(longitud: int = 10) -> Poblacion:
+    '''Utiliza la funcion generarVector para generar una poblacion de vectores, longitud en este caso es el tamaño de la poblacion.'''
     pobl = []
     for i in range(longitud):
         pobl.append(generarVector())
     return pobl
 
-# Crossover devuelve los dos pares de vectores resultados del crossover o devuelve los dos padres directamente en caso de no haber crossover.
 def crossover(vector1: Vector, vector2: Vector):
-
-    # Cruzamos un solo par de vectores en esta funcion
+    '''Crossover devuelve los dos pares de vectores resultados del crossover o devuelve los dos padres directamente en caso de no haber crossover.'''
     def cruzarVector(vect1: list[int], vect2:list[int]):
+        '''Cruzamos un solo par de vectores en esta funcion'''
         posicionSplit = int(random.random() * len(vect1) + 1)
         
         # Separamos los vectores vect1 y vect2 en dos partes (Left y Right)
@@ -49,44 +47,44 @@ def crossover(vector1: Vector, vector2: Vector):
     else:
         return vect1, vect2
 
-# Transforma el vector de binario a un valor decimal
 def binarioDecimal(vector: Vector) -> int:
+    '''Transforma el vector de binario a un valor decimal'''
     decimal=0
     for i in range(len(vector)):
             if vector[i] == 1:
                 decimal += 2 ** (len(vector) - 1 - i)
     return decimal
 
-# Funcion de fitness dada en la consigna, hay que aplicarla al vector transformado a decimal con la funcion binarioDecimal()
 def fitness(decimal):
+    '''Funcion de fitness dada en la consigna, hay que aplicarla al vector transformado a decimal con la funcion binarioDecimal()'''
     return (decimal / COEF) ** 2
 
-# Calcula el fitness promedio de la poblacion que se le pasa como parametro
 def fitnessPromedioPoblacion(poblacion):
+    '''Calcula el fitness promedio de la poblacion que se le pasa como parametro'''
     promedio = 0
     for p in poblacion:
         promedio += fitness(binarioDecimal(p))
     promedio = promedio / len(poblacion)
     return promedio
 
-# Calcula el individuo con fitness mas alto en la poblacion que se le pasa como parametro.
 def fitnessMaxPoblacion(poblacion):
+    '''Calcula el individuo con fitness mas alto en la poblacion que se le pasa como parametro.'''
     max = fitness(binarioDecimal(poblacion[0]))
     for p in poblacion:
         if(max < fitness(binarioDecimal(p))):
             max = fitness(binarioDecimal(p))
     return max
 
-# Calcula el individuo con el peor fitness en la poblacion que se le paso como parametro.
 def fitnessMinPoblacion(poblacion):
+    '''Calcula el individuo con el peor fitness en la poblacion que se le paso como parametro.'''
     min = fitness(binarioDecimal(poblacion[0]))
     for p in poblacion:
         if(min > fitness(binarioDecimal(p))):
             min = fitness(binarioDecimal(p))
     return min
 
-# Te hace un print con los fitness, promedios, maximos y minimos de la poblacion que se la pasa como paramtetro.
 def printInfoPoblacion(poblacion):
+    '''Te hace un print con los fitness, promedios, maximos y minimos de la poblacion que se la pasa como paramtetro.'''
     print("\n######## Datos de la Poblacion ########\n")
     i=0
     for p in poblacion:
@@ -97,16 +95,18 @@ def printInfoPoblacion(poblacion):
     print("Min: ",fitnessMinPoblacion(poblacion))
     print("\n")
 
-# Devuelve una lista con los pares de vectores a cruzar.
 def ruleta(poblacion: Poblacion)-> list[list[Vector]]:
+    '''Devuelve una lista con los pares de vectores a cruzar.'''
 
     def calcularPoblacionDecimal(poblacion: Poblacion):
+        '''A partir de la poblacion binaria calcula la poblacion decimal.'''
         poblacionDecimal: list[float] = []
         for p in poblacion: 
             poblacionDecimal.append(binarioDecimal(p))
         return poblacionDecimal
 
     def calcularFitnessAcumulado(poblacionDecimal) -> list[float]:
+        '''A partir de la poblacion Decimal calcula el fitness acumulado.'''
         fitnessAcumulado: list[float] = []
         fitnessAcumulado.append(0)
         fitnessRelativo = fitnessRelativoPoblacion(poblacionDecimal)
@@ -117,6 +117,7 @@ def ruleta(poblacion: Poblacion)-> list[list[Vector]]:
         return fitnessAcumulado
 
     def calcularParesPadres(fitnessAcumulado: list[float], poblacionDecimal: list[int]):
+        '''A partir del fitness acumulado y de la poblacion decimal calcula los pares de padres para cruzar.'''
         padresParesDecimal: list[float] = []
         for _ in range(CANTIDAD_DE_PARES):
             par: list[float] = []
@@ -131,6 +132,7 @@ def ruleta(poblacion: Poblacion)-> list[list[Vector]]:
         return padresParesDecimal
 
     def calcularParesPadresBinario(padresParesDecimal: list[int]) -> list[Vector,Vector]:
+        '''A partir de los pares de Padres en decimal calcula los pares de padres en binario.'''
         padresParesBinario: list[int] = []
         for par in padresParesDecimal:
             parBinario: list[int] = []
@@ -154,8 +156,9 @@ def ruleta(poblacion: Poblacion)-> list[list[Vector]]:
 
     return padresParesBinario
         
-#Calcula el Fitness Relativo de cada individuo de la poblacion(decimal) que se pasa como parametro. 
+
 def fitnessRelativoPoblacion(poblacion: Poblacion) -> list[float]:
+    '''Calcula el Fitness Relativo de cada individuo de la poblacion(decimal) que se pasa como parametro.'''
     listaFitness: list[float] = []
 
     for individuo in poblacion:
