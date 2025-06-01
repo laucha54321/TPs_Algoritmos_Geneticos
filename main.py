@@ -9,6 +9,7 @@ COEF = 2**30 - 1
 Vector = list[int]
 Poblacion = list[Vector]
 
+
 # Genera un vector aleatorio de longitud 30 por defecto
 def generarVector(longitud: int=30)->Vector:
     return [random.choice([0, 1]) for _ in range(longitud)]
@@ -96,16 +97,69 @@ def printInfoPoblacion(poblacion):
     print("Min: ",fitnessMinPoblacion(poblacion))
     print("\n")
 
+# Devuelve una lista con los pares de vectores a cruzar.
+def ruleta(poblacion: Poblacion)-> list[list[Vector]]:
+
+    def calcularPoblacionDecimal(poblacion: Poblacion):
+        poblacionDecimal: list[float] = []
+        for p in poblacion: 
+            poblacionDecimal.append(binarioDecimal(p))
+        return poblacionDecimal
+
+    def calcularFitnessAcumulado(poblacionDecimal) -> list[float]:
+        fitnessAcumulado: list[float] = []
+        fitnessAcumulado.append(0)
+        fitnessRelativo = fitnessRelativoPoblacion(poblacionDecimal)
+        acumulado: float = 0
+        for p in fitnessRelativo:
+            acumulado += p
+            fitnessAcumulado.append(acumulado)
+        return fitnessAcumulado
+
+    def calcularParesPadres(fitnessAcumulado: list[float], poblacionDecimal: list[int]):
+        padresParesDecimal: list[float] = []
+        for _ in range(CANTIDAD_DE_PARES):
+            par: list[float] = []
+            padre1 = random.random()
+            padre2 = random.random()
+            for p in range(len(fitnessAcumulado)):
+                if fitnessAcumulado[p] <= padre1 <= fitnessAcumulado[p+1]:
+                    par.append(poblacionDecimal[p])
+                if fitnessAcumulado[p] <= padre2 <= fitnessAcumulado[p+1]:
+                    par.append(poblacionDecimal[p])
+            padresParesDecimal.append(par)
+        return padresParesDecimal
+
+    def calcularParesPadresBinario(padresParesDecimal: list[int]) -> list[Vector,Vector]:
+        padresParesBinario: list[int] = []
+        for par in padresParesDecimal:
+            parBinario: list[int] = []
+            for padre in par:
+                parBinario.append(poblacion[poblacionDecimal.index(padre)])
+            padresParesBinario.append(parBinario)
+        return padresParesBinario
+
+    # Calculo la cantidad de pares que vamos a tener para luego cruzar. 
+    CANTIDAD_DE_PARES = int(len(poblacion)/2)
+    # Transformo la poblacion Binaria a Decimal para usarla en las demas funciones
+    poblacionDecimal: list[float] = calcularPoblacionDecimal(poblacion) 
+    # Calculo el fitness acumulado para poder utilizarlo para definir las porciones de la ruleta.
+    fitnessAcumulado: list[float] = calcularFitnessAcumulado(poblacionDecimal)
+
+    # Calculo los Pares de padres a partir utilizando el fitness acumulado como posicion en la ruleta.
+    padresParesDecimal: list[float] = calcularParesPadres(fitnessAcumulado,poblacionDecimal)
+    # Transormo los pares de padres en Decimal a Binario.
+    padresParesBinario: list[int] = calcularParesPadresBinario(padresParesDecimal)
 
 
-#Calcula el Fitness Relativo de cada individuo de la poblacion que se pasa como parametro
-
+    return padresParesBinario
+        
+#Calcula el Fitness Relativo de cada individuo de la poblacion(decimal) que se pasa como parametro. 
 def fitnessRelativoPoblacion(poblacion: Poblacion) -> list[float]:
     listaFitness: list[float] = []
 
     for individuo in poblacion:
-        decimal = binarioDecimal(individuo)
-        fitIndividuo = fitness(decimal)
+        fitIndividuo = fitness(individuo)
         listaFitness.append(fitIndividuo)
    
     total = 0
@@ -120,38 +174,7 @@ def fitnessRelativoPoblacion(poblacion: Poblacion) -> list[float]:
 
     return listaRelativos
 
-
-''' 
-Tenemos que Desarollar:
-    * La funcion que obtiene los fitness relativos a la poblacion.
-    
-    * La ruleta que va a tener distintos pesos para cada vector dependiendo del fitness. 
-    INPUT: no estoy seguro como manejar este tema. Podemos usar una tupla por cada uno de poblacion seleccionada? Por ejemplo: {[vect1, 0.35], [vect2, 0.35], [vect3,0.30]}
-    Tenemos que tener en cuenta que esta funcion va a tener que poder recibir distintas longitudes de lista ya que la cantidad de vectores seleccionados puede variar.
-    OUTPUT: Tuplas con los vectores a cruzar? {[vect1, vect2], [vect2, vect2], [vect3,vect1]}
-    
-
-Por ahora creo que eso seria lo mas principal, despues vamos a tener que integrar y loopear todo, pero hagamos el desarollo de estas cosas para una sola instancia y despues vemos como loopeamos llamando a las funciones. 
-'''
-
-# Generar un vector binario
-# vector = generarVector(LONGITUD_DE_LOS_VECTORES)
-
-# Convertir binario a decimal
-# x_decimal = binarioDecimal(vector)
-
-# Mostrar el vector binario ysu conversion a decimal
-# print(f"binario: {vector}")
-# print(f"decimal: {x_decimal}")
-
-# Calcular fitness
-# fitness_value = fitness(x_decimal)
-
-# Mostrar el fitness calculado
-#print(f"Fitness de {x_decimal} es: {fitness_value}")
-
-
 pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
-printInfoPoblacion(pobl)
+padresPares = ruleta(pobl)
 
-#print(crossover(generarVector(),generarVector()))
+print(padresPares)
