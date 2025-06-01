@@ -2,6 +2,7 @@ import random
 from guardarVectores import guardarVectoresJson
 
 PROBABILIDAD_DE_CROSSOVER = 0.75
+PROBABILIDAD_DE_MUTACION = 0.05
 LONGITUD_DE_LOS_VECTORES = 30
 TAMAÑO_DE_LA_POBLACION = 10
 COEF = 2**30 - 1
@@ -82,6 +83,27 @@ def crossover(vector1: Vector, vector2: Vector):
     
     else:
         return vect1, vect2
+
+def mutacionInvertida(vector: Vector) -> Vector:
+    """
+    Aplica la mutación por inversa a un individuo (vector).
+
+    Args:
+        vector (Vector): Individuo representado como lista de valores .
+
+    Returns:
+        Vector: El individuo mutado.
+    """
+
+    if random.random() < PROBABILIDAD_DE_MUTACION:
+        i = random.randint(0, len(vector) - 2)
+        j = random.randint(i + 1, len(vector) - 1)
+        sublista = vector[i:j+1]
+        sublista.reverse()
+        vector[i:j+1] = sublista
+    return vector
+
+
 
 def binarioDecimal(vector: Vector) -> int:
     '''
