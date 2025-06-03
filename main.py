@@ -1,10 +1,13 @@
 import random
 from guardarVectores import guardarVectoresJson
 
+import matplotlib.pyplot as plt
+
 PROBABILIDAD_DE_CROSSOVER = 0.75
 PROBABILIDAD_DE_MUTACION = 0.05
 LONGITUD_DE_LOS_VECTORES = 30
-TAMAÑO_DE_LA_POBLACION = 10
+TAMAÑO_DE_LA_POBLACION = 6
+CANTIDAD_DE_ITERACIONES =6 
 COEF = 2**30 - 1
 
 Vector = list[int]
@@ -73,16 +76,15 @@ def crossover(vector1: Vector, vector2: Vector):
         vect1Hijo = vect1Left + vect2Right
         vect2Hijo = vect2Left + vect1Right
 
-        print("\n ################# CRUZAR VECTORES #################\n \nPosicion del Split: ", posicionSplit,"\n\nPadre1: ",vect1,"\nPadre2: ", vect2,"\n\nHijo1: ",vect1Hijo,"\nHijo2: ",vect2Hijo,"\n\n")
         return vect1Hijo, vect2Hijo
 
     if(random.random()>PROBABILIDAD_DE_CROSSOVER):
         ## Aca hacemos el crossover si aplica
-        vect1, vect2 = cruzarVector(vect1,vect2)
-        return vect1, vect2
+        vector1, vector2 = cruzarVector(vector1,vector2)
+        return vector1, vector2
     
     else:
-        return vect1, vect2
+        return vector1, vector2
 
 def mutacionInvertida(vector: Vector) -> Vector:
     """
@@ -102,8 +104,6 @@ def mutacionInvertida(vector: Vector) -> Vector:
         sublista.reverse()
         vector[i:j+1] = sublista
     return vector
-
-
 
 def binarioDecimal(vector: Vector) -> int:
     '''
@@ -200,7 +200,7 @@ def printInfoPoblacion(poblacion: list[Vector])->None:
     print("Min: ",fitnessMinPoblacion(poblacion))
     print("\n")
 
-def ruleta(poblacion: Poblacion)-> list[list[Vector]]:
+def ruleta(poblacion: Poblacion)-> list[Vector,Vector]:
     """  
     Realiza la selección de padres mediante el método de ruleta (roulette wheel selection).
     
@@ -331,7 +331,83 @@ def fitnessRelativoPoblacion(poblacionDecimal: Poblacion) -> list[float]:
 
     return listaRelativos
 
-pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
-padresPares = ruleta(pobl)
+def cruzarPoblacion(padresPares:list[Vector, Vector])->Poblacion:
+    """
+    Con los pares de padres genera la siguiente generacion de individuos
 
-print(padresPares)
+    Args:
+        padresPares (list[Vecto, Vector]): Pares de padres de la poblacion.
+    Returns:
+        Poblacion: Siguiente generacion de vectores despues de ser cruzados.
+    """
+    poblacionResultante: list[Vector, Vector] = []
+
+    for par in padresPares:
+        hijosPares = []
+        hijosPares.append(crossover(par[0],par[1]))
+        for a in hijosPares:
+            poblacionResultante.append(a[0])
+            poblacionResultante.append(a[1])
+    
+    return poblacionResultante
+
+def entrenamiento(pobl: Poblacion, iteraciones: int):
+    """
+    Aplica el algoritmo genetico iterando haciendo crossover y generando las nuevas poblaciones.
+
+    Args:
+        pobl (Poblacion): poblacion inicial del algoritmo.
+        iteraciones (int): La cantidad de iteraciones que se van a ejecutar. 
+    """
+    generations = list(range(iteraciones))
+    avg = []
+    min_ = []
+    max_ = []
+    for _ in range(iteraciones):
+        printInfoPoblacion(pobl)
+        avg.append(fitnessPromedioPoblacion(pobl))
+        max_.append(fitnessMaxPoblacion(pobl))
+        min_.append(fitnessMinPoblacion(pobl))
+        pobl = ruleta(pobl)
+        pobl = cruzarPoblacion(pobl)
+    # Create figure and two axes (plot on the left, table on the right)
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    # Plot lines
+    ax.plot(generations, avg, label='Average', marker='o')
+    ax.plot(generations, max_, label='Max', marker='^')
+    ax.plot(generations, min_, label='Min', marker='v')
+    
+    titulo = f"Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES}"
+
+
+    ax.set_title(titulo)
+    ax.set_xlabel("Generation")
+    ax.set_ylabel("Fitness")
+    ax.legend()
+    ax.grid(True)
+
+    # Hide x-axis labels to make space for table if needed
+    # ax.set_xticklabels([])
+
+    # Create the table data
+    cell_text = []
+    for i in range(len(generations)):
+        row = [generations[i], f"{min_[i]:.1f}", f"{avg[i]:.1f}", f"{max_[i]:.1f}"]
+        cell_text.append(row)
+
+    # Create table on the right
+    table = plt.table(cellText=cell_text,
+                      colLabels=["Gen", "Min", "Avg", "Max"],
+                      cellLoc='center',
+                      colLoc='center',
+                      loc='right',
+                      bbox=[1.05, 0.1, 0.3, 0.8])  # [left, bottom, width, height]
+
+    table.scale(1, 1.2)  # Adjust cell size
+
+    plt.tight_layout()
+    plt.show()
+
+pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
+entrenamiento(pobl, CANTIDAD_DE_ITERACIONES)
