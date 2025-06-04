@@ -2,12 +2,13 @@ import random
 from guardarVectores import guardarVectoresJson
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 
 PROBABILIDAD_DE_CROSSOVER = 0.75
 PROBABILIDAD_DE_MUTACION = 0.05
 LONGITUD_DE_LOS_VECTORES = 30
-TAMAÑO_DE_LA_POBLACION = 6
-CANTIDAD_DE_ITERACIONES =6 
+TAMAÑO_DE_LA_POBLACION = 10
+CANTIDAD_DE_ITERACIONES =100 
 COEF = 2**30 - 1
 
 Vector = list[int]
@@ -29,7 +30,7 @@ def generarPoblacion(longitud: int = 10) -> Poblacion:
     """
     Genera una población de vectores binarios.
 
-    Utiliza la función `generarVector()` para crear una lista de individuos, donde cada individuo es un vector binario. El parámetro `longitud` representa la cantidad de individuos en la población.
+    Utiliza la función generarVector() para crear una lista de individuos, donde cada individuo es un vector binario. El parámetro longitud representa la cantidad de individuos en la población.
 
     Args:
         longitud (int, optional): Número de vectores a generar. Por defecto es 10.
@@ -349,6 +350,9 @@ def cruzarPoblacion(padresPares:list[Vector, Vector])->Poblacion:
             poblacionResultante.append(a[0])
             poblacionResultante.append(a[1])
     
+    for ind in poblacionResultante:
+        ind = mutacionInvertida(ind)
+
     return poblacionResultante
 
 def entrenamiento(pobl: Poblacion, iteraciones: int):
@@ -370,44 +374,37 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
         min_.append(fitnessMinPoblacion(pobl))
         pobl = ruleta(pobl)
         pobl = cruzarPoblacion(pobl)
-    # Create figure and two axes (plot on the left, table on the right)
+
+
+
+    # Create figure and axis
     fig, ax = plt.subplots(figsize=(10, 5))
 
     # Plot lines
     ax.plot(generations, avg, label='Average', marker='o')
     ax.plot(generations, max_, label='Max', marker='^')
     ax.plot(generations, min_, label='Min', marker='v')
-    
-    titulo = f"Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES}"
 
-
+    # Title and labels
+    titulo = f"Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES} - Prob.Mutacion: {PROBABILIDAD_DE_MUTACION} - Prob. Crossover: {PROBABILIDAD_DE_CROSSOVER}"
     ax.set_title(titulo)
     ax.set_xlabel("Generation")
     ax.set_ylabel("Fitness")
+
+    # Mostrar 8 decimales en el eje Y
+    ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f'))
+
     ax.legend()
     ax.grid(True)
 
-    # Hide x-axis labels to make space for table if needed
-    # ax.set_xticklabels([])
 
-    # Create the table data
-    cell_text = []
-    for i in range(len(generations)):
-        row = [generations[i], f"{min_[i]:.1f}", f"{avg[i]:.1f}", f"{max_[i]:.1f}"]
-        cell_text.append(row)
 
-    # Create table on the right
-    table = plt.table(cellText=cell_text,
-                      colLabels=["Gen", "Min", "Avg", "Max"],
-                      cellLoc='center',
-                      colLoc='center',
-                      loc='right',
-                      bbox=[1.05, 0.1, 0.3, 0.8])  # [left, bottom, width, height]
 
-    table.scale(1, 1.2)  # Adjust cell size
+  
 
     plt.tight_layout()
     plt.show()
+
 
 pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
 entrenamiento(pobl, CANTIDAD_DE_ITERACIONES)
