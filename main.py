@@ -10,6 +10,7 @@ LONGITUD_DE_LOS_VECTORES = 30
 TAMAÑO_DE_LA_POBLACION = 10
 CANTIDAD_DE_ITERACIONES =100 
 COEF = 2**30 - 1
+TAMAÑO_TORNEO = 3
 
 Vector = list[int]
 Poblacion = list[Vector]
@@ -79,7 +80,7 @@ def crossover(vector1: Vector, vector2: Vector):
 
         return vect1Hijo, vect2Hijo
 
-    if(random.random()>PROBABILIDAD_DE_CROSSOVER):
+    if(random.random()< PROBABILIDAD_DE_CROSSOVER):
         ## Aca hacemos el crossover si aplica
         vector1, vector2 = cruzarVector(vector1,vector2)
         return vector1, vector2
@@ -350,10 +351,32 @@ def cruzarPoblacion(padresPares:list[Vector, Vector])->Poblacion:
             poblacionResultante.append(a[0])
             poblacionResultante.append(a[1])
     
-    for ind in poblacionResultante:
-        ind = mutacionInvertida(ind)
+    for i in range(len(poblacionResultante)):
+        poblacionResultante[i] = mutacionInvertida(poblacionResultante[i])
 
     return poblacionResultante
+
+
+def torneo (poblacion, fitness):
+    """
+    Selecciona un individuo usando el método de torneo.
+
+    Args:
+        poblacion (lista): lista con los individuos.
+        fitness (lista): lista con los valores de fitness de cada individuo.
+
+    Returns:
+        individuo ganador: el individuo con el mejor fitness dentro del torneo.
+    """
+
+    participantes = random.sample(list(zip(poblacion, fitness)), TAMAÑO_TORNEO)
+    ganador = participantes[0]
+    for participante in participantes:
+        if participante[1] > ganador[1]:
+            ganador = participante
+
+    return ganador[0]
+
 
 def entrenamiento(pobl: Poblacion, iteraciones: int):
     """
