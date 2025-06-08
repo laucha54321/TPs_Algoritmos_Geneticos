@@ -259,7 +259,7 @@ def printInfoPoblacion(poblacion: list[Vector])->None:
 
 def guardarDatosPoblacionCSV(poblacion: list[Vector], generacion: int, nombre_archivo: str = "resultados.csv") -> None:
     modo = 'w' if generacion == 0 else 'a'
-    with open(nombre_archivo, mode='a', newline='') as archivo:
+    with open(nombre_archivo, mode=modo, newline='') as archivo:
         writer = csv.writer(archivo)
         
         # Escribir encabezado si es la primera generación
