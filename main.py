@@ -8,12 +8,15 @@ PROBABILIDAD_DE_CROSSOVER = 0.75
 PROBABILIDAD_DE_MUTACION = 0.05
 LONGITUD_DE_LOS_VECTORES = 30
 TAMAÑO_DE_LA_POBLACION = 10
-CANTIDAD_DE_ITERACIONES =100 
+CANTIDAD_DE_ITERACIONES = 20 
 COEF = 2**30 - 1
 TAMAÑO_TORNEO = 3
 
 Vector = list[int]
 Poblacion = list[Vector]
+
+poblacion = [[1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1], [1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0], [0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0], [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1], [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0], [0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1], [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1], [0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0], [0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0]]
+
 
 def generarVector(longitud: int=30)->Vector:
     """
@@ -404,9 +407,9 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
     fig, ax = plt.subplots(figsize=(10, 5))
 
     # Plot lines
-    ax.plot(generations, avg, label='Average', marker='o')
-    ax.plot(generations, max_, label='Max', marker='^')
-    ax.plot(generations, min_, label='Min', marker='v')
+    ax.plot(generations, avg, label='Average')
+    ax.plot(generations, max_, label='Max')
+    ax.plot(generations, min_, label='Min')
 
     # Title and labels
     titulo = f"Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES} - Prob.Mutacion: {PROBABILIDAD_DE_MUTACION} - Prob. Crossover: {PROBABILIDAD_DE_CROSSOVER}"
@@ -420,14 +423,9 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
     ax.legend()
     ax.grid(True)
 
-
-
-
-  
-
     plt.tight_layout()
     plt.show()
 
-
-pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
+pobl = poblacion
+#pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
 entrenamiento(pobl, CANTIDAD_DE_ITERACIONES)

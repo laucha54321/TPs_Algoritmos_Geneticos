@@ -2,15 +2,17 @@ import random
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
+poblacion = [[1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1], [1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0], [0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0], [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1], [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0], [0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1], [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1], [0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0], [0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0]]
+
 # Constants
 PROBABILIDAD_DE_CROSSOVER = 0.75
-PROBABILIDAD_DE_MUTACION = 0.10
+PROBABILIDAD_DE_MUTACION = 0.05
 LONGITUD_DE_LOS_VECTORES = 30
 TAMAÑO_DE_LA_POBLACION = 10
-CANTIDAD_DE_ITERACIONES = 100
+CANTIDAD_DE_ITERACIONES = 20
 COEF = 2**30 - 1
 TAMAÑO_TORNEO = 3
-N_ELITISMO = 2
+N_ELITISMO = 4
 
 Vector = list[int]
 Poblacion = list[Vector]
@@ -89,7 +91,7 @@ def ruleta(poblacion: Poblacion) -> list[list[Vector]]:
     return padresParesBinario
 
 def cruzarPoblacion(padresPares: list[list[Vector]]) -> Poblacion:
-    poblacionResultante = []
+    poblacionResultante = []    
     for par in padresPares:
         hijo1, hijo2 = crossover(par[0], par[1])
         poblacionResultante.append(mutacionInvertida(hijo1))
@@ -97,28 +99,62 @@ def cruzarPoblacion(padresPares: list[list[Vector]]) -> Poblacion:
     return poblacionResultante
 
 def ruletaElitismo(poblacion: Poblacion, n_elit: int) -> Poblacion:
-    # Calculate fitness for each individual
+    """Roulette with elitism, preserving top n_elit and generating 6 offspring."""
+    if not poblacion:
+        return generarPoblacion(TAMAÑO_DE_LA_POBLACION, max_decimal=1024)
+    
+    # Select top n_elit individuals
     fitness_values = [(fitness(binarioDecimal(p)), p) for p in poblacion]
-    # Sort by fitness in descending order and select top n_elit individuals
     fitness_values.sort(reverse=True)
     elite = [ind for _, ind in fitness_values[:n_elit]]
     
-    # Remove elite from population for roulette selection
+    # Non-elite population for selection
     non_elite_poblacion = [p for p in poblacion if p not in elite]
+    if not non_elite_poblacion:
+        non_elite_poblacion = poblacion  # Fallback to full population if elite takes all
     
-    # Adjust number of pairs for non-elite population
-    CANTIDAD_DE_PARES = (len(poblacion) - n_elit) // 2
-    if CANTIDAD_DE_PARES <= 0:
-        return elite  # If no pairs can be formed, return elite only
+    # Generate exactly 6 offspring (3 pairs)
+    nueva_poblacion = []
+    for _ in range(3):  # Need 3 pairs to produce 6 offspring
+        poblacionDecimal = [binarioDecimal(p) for p in non_elite_poblacion]
+        fitnessAcumulado = [0]
+        for f in fitnessRelativoPoblacion(poblacionDecimal):
+            fitnessAcumulado.append(fitnessAcumulado[-1] + f)
+        
+        parents = []
+        for _ in range(2):  # Select 2 parents for a pair
+            r = random.random()
+            for i in range(len(fitnessAcumulado) - 1):
+                if fitnessAcumulado[i] <= r < fitnessAcumulado[i + 1]:
+                    parents.append(non_elite_poblacion[i])
+                    break
+            else:
+                parents.append(non_elite_poblacion[-1])
+        
+        if len(parents) == 2:
+            hijo1, hijo2 = crossover(parents[0], parents[1])
+            nueva_poblacion.append(mutacionInvertida(hijo1))
+            nueva_poblacion.append(mutacionInvertida(hijo2))
+    
+    # Combine elite with new offspring
+    result = elite + nueva_poblacion
+    
+    # Ensure population size is exactly 10
+    while len(result) < TAMAÑO_DE_LA_POBLACION:
+        new_vector = generarVector(N_ELITISMO, max_decimal=1024)
+        if tuple(new_vector) not in {tuple(v) for v in result}:
+            result.append(new_vector)
+    
+    return result[:TAMAÑO_DE_LA_POBLACION]   
 
-    # Perform roulette selection on non-elite population
-    padresParesBinario = ruleta(non_elite_poblacion)
-    
-    # Generate new population through crossover and mutation
-    nueva_poblacion = cruzarPoblacion(padresParesBinario)
-    
-    # Combine elite with new population
-    return elite + nueva_poblacion[:len(poblacion) - n_elit]
+def moving_average(data, window_size=3):
+    """Calcula el promedio móvil para suavizar una serie de datos."""
+    if len(data) < window_size:
+        return data  # no smooth if not enough data
+    return [
+        sum(data[max(0, i - window_size + 1):i + 1]) / len(data[max(0, i - window_size + 1):i + 1])
+        for i in range(len(data))
+    ]
 
 def entrenamiento(pobl: Poblacion, iteraciones: int):
     generations = list(range(iteraciones))
@@ -132,11 +168,12 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
         min_.append(fitnessMinPoblacion(pobl))
         pobl = ruletaElitismo(pobl, N_ELITISMO)
 
+
     # Create figure and axis
     fig, ax = plt.subplots(figsize=(10, 5))
-    ax.plot(generations, avg, label='Average', marker='o')
-    ax.plot(generations, max_, label='Max', marker='^')
-    ax.plot(generations, min_, label='Min', marker='v')
+    ax.plot(generations, avg, label='Average')
+    ax.plot(generations, max_, label='Max')
+    ax.plot(generations, min_, label='Min')
     titulo = (f"Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} "
               f"- Cant Iter: {CANTIDAD_DE_ITERACIONES} - Prob.Mutacion: {PROBABILIDAD_DE_MUTACION} "
               f"- Prob. Crossover: {PROBABILIDAD_DE_CROSSOVER}")
@@ -150,5 +187,9 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
     plt.show()
 
 if __name__ == "__main__":
-    pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
+    x = generarPoblacion()
+    print(x)
+    printInfoPoblacion(x)
+
+    pobl = poblacion
     entrenamiento(pobl, CANTIDAD_DE_ITERACIONES)
