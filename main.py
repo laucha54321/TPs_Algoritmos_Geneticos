@@ -3,12 +3,13 @@ from guardarVectores import guardarVectoresJson
 
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+import csv
 
 PROBABILIDAD_DE_CROSSOVER = 0.75
 PROBABILIDAD_DE_MUTACION = 0.05
 LONGITUD_DE_LOS_VECTORES = 30
 TAMAÑO_DE_LA_POBLACION = 10
-CANTIDAD_DE_ITERACIONES = 20 
+CANTIDAD_DE_ITERACIONES = 200 
 COEF = 2**30 - 1
 TAMAÑO_TORNEO = 3
 
@@ -393,11 +394,14 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
     avg = []
     min_ = []
     max_ = []
-    for _ in range(iteraciones):
+    for i in range(iteraciones):
         printInfoPoblacion(pobl)
         avg.append(fitnessPromedioPoblacion(pobl))
         max_.append(fitnessMaxPoblacion(pobl))
         min_.append(fitnessMinPoblacion(pobl))
+
+        guardarDatosPoblacionCSV(pobl,i,"poblacion_ruleta")
+
         pobl = ruleta(pobl)
         pobl = cruzarPoblacion(pobl)
 
@@ -425,6 +429,23 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
 
     plt.tight_layout()
     plt.show()
+
+def guardarDatosPoblacionCSV(poblacion: list[Vector], generacion: int, nombre_archivo: str = "resultados.csv") -> None:
+    modo = 'w' if generacion == 0 else 'a'
+    with open(nombre_archivo, mode=modo, newline='') as archivo:
+        writer = csv.writer(archivo)
+        
+        # Escribir encabezado si es la primera generación
+        if generacion == 0:
+            writer.writerow(["gen", "ind", "fit", "avg", "max", "min"])
+
+        promedio = fitnessPromedioPoblacion(poblacion)
+        maximo = fitnessMaxPoblacion(poblacion)
+        minimo = fitnessMinPoblacion(poblacion)
+
+        for i, p in enumerate(poblacion):
+            fit = fitness(binarioDecimal(p))
+            writer.writerow([generacion, i+1, fit, promedio, maximo, minimo])   
 
 pobl = poblacion
 #pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)

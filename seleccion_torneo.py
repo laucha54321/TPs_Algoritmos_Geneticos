@@ -9,7 +9,7 @@ PROBABILIDAD_DE_CROSSOVER = 0.75
 PROBABILIDAD_DE_MUTACION = 0.05
 LONGITUD_DE_LOS_VECTORES = 30
 TAMAÑO_DE_LA_POBLACION = 10
-CANTIDAD_DE_ITERACIONES = 10
+CANTIDAD_DE_ITERACIONES = 200
 COEF = 2**30 - 1
 TAMAÑO_TORNEO = 3
 
@@ -309,9 +309,9 @@ def seleccion_torneo(pobl: Poblacion, iteraciones: int):
     fig, ax = plt.subplots(figsize=(10, 5))
 
     # Plot lines
-    ax.plot(generations, avg, label='Average', marker='o')
-    ax.plot(generations, max_, label='Max', marker='^')
-    ax.plot(generations, min_, label='Min', marker='v')
+    ax.plot(generations, avg, label='Average')
+    ax.plot(generations, max_, label='Max')
+    ax.plot(generations, min_, label='Min')
 
     # Title and labels
     titulo = f"Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES} - Prob.Mutacion: {PROBABILIDAD_DE_MUTACION} - Prob. Crossover: {PROBABILIDAD_DE_CROSSOVER}"
@@ -331,7 +331,10 @@ def seleccion_torneo(pobl: Poblacion, iteraciones: int):
     plt.tight_layout()
     plt.show()
 
+poblacion = [[1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1], [1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0], [0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0], [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1], [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0], [0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1], [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1], [0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0], [0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0]]
+
+
 # Ejemplo de uso
 if __name__ == "__main__":
-    poblacion_inicial = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
+    poblacion_inicial = poblacion
     seleccion_torneo(poblacion_inicial, CANTIDAD_DE_ITERACIONES)
