@@ -6,10 +6,10 @@ import matplotlib.ticker as mticker
 import csv
 
 PROBABILIDAD_DE_CROSSOVER = 0.75
-PROBABILIDAD_DE_MUTACION = 0.05
+PROBABILIDAD_DE_MUTACION = 0.30
 LONGITUD_DE_LOS_VECTORES = 30
 TAMAÑO_DE_LA_POBLACION = 10
-CANTIDAD_DE_ITERACIONES = 200 
+CANTIDAD_DE_ITERACIONES = 40 
 COEF = 2**30 - 1
 TAMAÑO_TORNEO = 3
 
@@ -400,7 +400,7 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
         max_.append(fitnessMaxPoblacion(pobl))
         min_.append(fitnessMinPoblacion(pobl))
 
-        guardarDatosPoblacionCSV(pobl,i,"poblacion_ruleta")
+        guardarDatosPoblacionCSV(pobl,i,"poblacion_ruleta.csv")
 
         pobl = ruleta(pobl)
         pobl = cruzarPoblacion(pobl)

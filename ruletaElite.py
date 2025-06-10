@@ -181,7 +181,7 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
     max_ = []
     for i in range(iteraciones):
 
-        guardarDatosPoblacionCSV(pobl, i, 'poblacion_eltisimo')
+        guardarDatosPoblacionCSV(pobl, i, 'poblacion_eltisimo.csv')
 
         printInfoPoblacion(pobl)
         avg.append(fitnessPromedioPoblacion(pobl))

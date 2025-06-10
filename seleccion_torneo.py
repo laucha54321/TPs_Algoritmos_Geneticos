@@ -292,7 +292,7 @@ def seleccion_torneo(pobl: Poblacion, iteraciones: int):
         max_.append(fitnessMaxPoblacion(pobl))
 
         #Guardar los datos
-        guardarDatosPoblacionCSV(pobl,i,"poblacion_torneo")
+        guardarDatosPoblacionCSV(pobl,i,"poblacion_torneo.csv")
 
         # Usar selección por torneo
         fits = [fitness(binarioDecimal(p)) for p in pobl]
