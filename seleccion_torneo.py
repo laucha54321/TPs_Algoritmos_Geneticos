@@ -215,28 +215,42 @@ def fitnessRelativoPoblacion(poblacionDecimal: Poblacion) -> list[float]:
 
     return listaRelativos
 
-def cruzarPoblacion(padresPares:list[Vector, Vector])->Poblacion:
-    """
-    Con los pares de padres genera la siguiente generacion de individuos
+# def cruzarPoblacion(padresPares:list[Vector, Vector])->Poblacion:
+#     """
+#     Con los pares de padres genera la siguiente generacion de individuos
 
-    Args:
-        padresPares (list[Vecto, Vector]): Pares de padres de la poblacion.
-    Returns:
-        Poblacion: Siguiente generacion de vectores despues de ser cruzados.
-    """
-    poblacionResultante: list[Vector, Vector] = []
+#     Args:
+#         padresPares (list[Vecto, Vector]): Pares de padres de la poblacion.
+#     Returns:
+#         Poblacion: Siguiente generacion de vectores despues de ser cruzados.
+#     """
+#     poblacionResultante: list[Vector, Vector] = []
 
-    for par in padresPares:
-        hijosPares = []
-        hijosPares.append(crossover(par[0],par[1]))
-        for a in hijosPares:
-            poblacionResultante.append(a[0])
-            poblacionResultante.append(a[1])
+#     for par in padresPares:
+#         hijosPares = []
+#         hijosPares.append(crossover(par[0],par[1]))
+#         for a in hijosPares:
+#             poblacionResultante.append(a[0])
+#             poblacionResultante.append(a[1])
     
-    for i in range(len(poblacionResultante)):
-        poblacionResultante[i] = mutacionInvertida(poblacionResultante[i])
+#     for i in range(len(poblacionResultante)):
+#         poblacionResultante[i] = mutacionInvertida(poblacionResultante[i])
 
-    return poblacionResultante
+#     return poblacionResultante
+
+def cruzarPoblacion(padresPares: list[tuple[Vector, Vector]]) -> Poblacion:
+    """
+    Realiza crossover y mutación sobre los pares de padres para generar la nueva población.
+    """
+    nueva_poblacion: Poblacion = []
+
+    for padre1, padre2 in padresPares:
+        hijo1, hijo2 = crossover(padre1, padre2)
+        hijo1 = mutacionInvertida(hijo1)
+        hijo2 = mutacionInvertida(hijo2)
+        nueva_poblacion.extend([hijo1, hijo2])
+
+    return nueva_poblacion
 
 def printInfoPoblacion(poblacion: list[Vector])->None:
     """
@@ -261,18 +275,16 @@ def guardarDatosPoblacionCSV(poblacion: list[Vector], generacion: int, nombre_ar
     modo = 'w' if generacion == 0 else 'a'
     with open(nombre_archivo, mode=modo, newline='') as archivo:
         writer = csv.writer(archivo)
-        
-        # Escribir encabezado si es la primera generación
         if generacion == 0:
-            writer.writerow(["Generación", "Individuo", "Fitness", "Promedio", "Máximo", "Mínimo"])
-        
-        promedio = fitnessPromedioPoblacion(poblacion)
-        maximo = fitnessMaxPoblacion(poblacion)
-        minimo = fitnessMinPoblacion(poblacion)
+            writer.writerow(["gen", "min", "avg", "max", "mejor"])
 
-        for i, p in enumerate(poblacion):
-            fit = fitness(binarioDecimal(p))
-            writer.writerow([generacion, i+1, fit, promedio, maximo, minimo])
+        fitness_pares = [(fitness(binarioDecimal(p)), p) for p in poblacion]
+        min_fitness = min(f for f, _ in fitness_pares)
+        avg_fitness = sum(f for f, _ in fitness_pares) / len(poblacion)
+        max_fitness, mejor_vector = max(fitness_pares, key=lambda x: x[0])
+        mejor_cromosoma = ''.join(str(bit) for bit in mejor_vector)
+
+        writer.writerow([generacion, min_fitness, avg_fitness, max_fitness, mejor_cromosoma])
 
 # Selección por torneo
 def torneo(poblacion: Poblacion, fitnesses: list[float]) -> Vector:
@@ -314,9 +326,9 @@ def seleccion_torneo(pobl: Poblacion, iteraciones: int):
     ax.plot(generations, min_, label='Min')
 
     # Title and labels
-    titulo = f"Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES} - Prob.Mutacion: {PROBABILIDAD_DE_MUTACION} - Prob. Crossover: {PROBABILIDAD_DE_CROSSOVER}"
+    titulo = f"TORNEO - Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES} - Prob.Mutacion: {PROBABILIDAD_DE_MUTACION} - Prob. Crossover: {PROBABILIDAD_DE_CROSSOVER}"
     ax.set_title(titulo)
-    ax.set_xlabel("Generation")
+    ax.set_xlabel("Generación")
     ax.set_ylabel("Fitness")
     ax.yaxis.set_major_formatter(mticker.FormatStrFormatter('%.1f'))
 
