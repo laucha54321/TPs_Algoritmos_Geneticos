@@ -2,18 +2,22 @@ import random
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 import csv
-
+import json
 poblacion = [[1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1], [1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0], [0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0], [1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1], [0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1], [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0], [0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1], [0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1], [0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0], [0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0]]
 
-# Constants
-PROBABILIDAD_DE_CROSSOVER = 0.75
-PROBABILIDAD_DE_MUTACION = 0.05
-LONGITUD_DE_LOS_VECTORES = 30
-TAMAÑO_DE_LA_POBLACION = 10
-CANTIDAD_DE_ITERACIONES = 200
-COEF = 2**30 - 1
-TAMAÑO_TORNEO = 3
-N_ELITISMO = 4
+
+with open("variables.json", "r", encoding="utf-8") as file:
+    variables = json.load(file)
+
+PROBABILIDAD_DE_CROSSOVER = variables["PROBABILIDAD_DE_CROSSOVER"]
+PROBABILIDAD_DE_MUTACION = variables["PROBABILIDAD_DE_MUTACION"] 
+LONGITUD_DE_LOS_VECTORES = variables["LONGITUD_DE_LOS_VECTORES"]
+TAMAÑO_DE_LA_POBLACION = variables["TAMAÑO_DE_LA_POBLACION"]
+CANTIDAD_DE_ITERACIONES = variables["CANTIDAD_DE_ITERACIONES"]
+COEF = variables["COEF"]
+TAMAÑO_TORNEO = variables["TAMAÑO_TORNEO"]
+N_ELITISMO = variables["N_ELITISMO"]
+
 
 Vector = list[int]
 Poblacion = list[Vector]
@@ -212,5 +216,5 @@ if __name__ == "__main__":
     print(x)
     printInfoPoblacion(x)
 
-    pobl = poblacion
+    pobl = generarPoblacion(10)
     entrenamiento(pobl, CANTIDAD_DE_ITERACIONES)

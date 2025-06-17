@@ -452,6 +452,6 @@ def guardarDatosPoblacionCSV(poblacion: list[Vector], generacion: int, nombre_ar
             fit = fitness(binarioDecimal(p))
             writer.writerow([generacion, i+1, fit, promedio, maximo, minimo])   
 
-pobl = poblacion
+pobl = generarPoblacion(10)
 #pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
 entrenamiento(pobl, CANTIDAD_DE_ITERACIONES)
