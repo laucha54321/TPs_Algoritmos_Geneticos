@@ -247,7 +247,7 @@ def ruletaElitismo(poblacion: Poblacion, n_elit: int) -> Poblacion:
 def moving_average(data, window_size=3):
     """Calcula el promedio móvil para suavizar una serie de datos."""
     if len(data) < window_size:
-        return data  # no smooth if not enough data
+        return data  
     return [
         sum(data[max(0, i - window_size + 1):i + 1]) / len(data[max(0, i - window_size + 1):i + 1])
         for i in range(len(data))
@@ -273,6 +273,11 @@ def entrenamiento(pobl: Poblacion, iteraciones: int):
             min_.append(float(row['min']))
             avg.append(float(row['avg']))
             max_.append(float(row['max']))
+
+    mejor = max(pobl, key=lambda x: fitness(binarioDecimal(x)))
+    print("Mejor cromosoma final:", mejor)
+    print("Valor decimal:", binarioDecimal(mejor))
+    print("Fitness:", fitness(binarioDecimal(mejor)))
 
     # Graficar
     fig, ax = plt.subplots(figsize=(10, 5))

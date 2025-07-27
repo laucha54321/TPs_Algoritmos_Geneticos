@@ -21,7 +21,7 @@ N_ELITISMO = variables["N_ELITISMO"]
 Vector = list[int]
 Poblacion = list[Vector]
 
-# Generadores
+
 def generarVector(longitud: int=30)->Vector:
     """
     Genera un vector binario aleatorio de longitud especificada.
@@ -322,15 +322,11 @@ def seleccion_torneo(pobl: Poblacion, iteraciones: int):
     print("Valor decimal:", binarioDecimal(mejor))
     print("Fitness:", fitness(binarioDecimal(mejor)))
 
-    # Create figure and axis
-    fig, ax = plt.subplots(figsize=(10, 5))
-
-    # Plot lines
+    # Graficar
+    fig, ax = plt.subplots(figsize=(10, 5))    
     ax.plot(generations, avg, label='Average')
     ax.plot(generations, max_, label='Max')
-    ax.plot(generations, min_, label='Min')
-
-    # Title and labels
+    ax.plot(generations, min_, label='Min')    
     titulo = f"TORNEO - Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES} - Prob.Mutacion: {PROBABILIDAD_DE_MUTACION} - Prob. Crossover: {PROBABILIDAD_DE_CROSSOVER}"
     ax.set_title(titulo)
     ax.set_xlabel("Generación")

@@ -4,7 +4,7 @@ import matplotlib.ticker as mticker
 import csv
 import json
 
-# Load configuration from variables.json
+# Cargo las variables desde el archivo JSON
 with open("variables.json", "r", encoding="utf-8") as file:
     variables = json.load(file)
 
@@ -17,7 +17,7 @@ COEF = variables["COEF"]
 TAMAÑO_TORNEO = variables["TAMAÑO_TORNEO"]
 N_ELITISMO = variables["N_ELITISMO"]
 
-# from guardarVectores import guardarVectoresJson  # Commented out as not provided
+
 
 Vector = list[int]
 Poblacion = list[Vector]
@@ -126,7 +126,7 @@ def ruleta(poblacion: Poblacion) -> list[tuple[Vector, Vector]]:
     fitnessAcum = calcularFitnessAcumulado(fitnessRel)
 
     pares = []
-    num_pares = (len(poblacion) - N_ELITISMO) // 2  # Adjust for elitism
+    num_pares = (len(poblacion) - N_ELITISMO) // 2  # Ajustar para elitismo
     for _ in range(num_pares):
         idx1 = seleccionar_individuo(fitnessAcum)
         idx2 = seleccionar_individuo(fitnessAcum)
@@ -145,7 +145,7 @@ def torneo(poblacion: Poblacion) -> list[tuple[Vector, Vector]]:
         return max(participantes, key=lambda p: fitness(binarioDecimal(p)))
 
     pares = []
-    num_pares = (len(poblacion) - N_ELITISMO) // 2  # Adjust for elitism
+    num_pares = (len(poblacion) - N_ELITISMO) // 2  # Ajustar para elitismo
     for _ in range(num_pares):
         padre1 = seleccionar_individuo()
         padre2 = seleccionar_individuo()
@@ -175,26 +175,20 @@ def cruzarPoblacion(padresPares: list[tuple[Vector, Vector]], poblacion: Poblaci
     # Asegurar que la población tenga el tamaño correcto
     return nueva_poblacion[:TAMAÑO_DE_LA_POBLACION]
 
-def guardarDatosPoblacionCSV(poblacion: list[Vector], generacion: int, nombre_archivo: str = "poblacion_ruleta.csv") -> None:
-    """
-    Guarda estadísticas de la población en un archivo CSV.
-    """
+def guardarDatosPoblacionCSV(poblacion: list[Vector], generacion: int, nombre_archivo: str = "resultados.csv") -> None:
     modo = 'w' if generacion == 0 else 'a'
     with open(nombre_archivo, mode=modo, newline='') as archivo:
         writer = csv.writer(archivo)
         if generacion == 0:
-            writer.writerow(["gen", "ind", "fit", "avg", "max", "min", "mejor_cromosoma"])
+            writer.writerow(["gen", "min", "avg", "max", "mejor"])
 
-        promedio = fitnessPromedioPoblacion(poblacion)
-        maximo = fitnessMaxPoblacion(poblacion)
-        minimo = fitnessMinPoblacion(poblacion)
         fitness_pares = [(fitness(binarioDecimal(p)), p) for p in poblacion]
-        _, mejor_vector = max(fitness_pares, key=lambda x: x[0])
+        min_fitness = min(f for f, _ in fitness_pares)
+        avg_fitness = sum(f for f, _ in fitness_pares) / len(poblacion)
+        max_fitness, mejor_vector = max(fitness_pares, key=lambda x: x[0])
         mejor_cromosoma = ''.join(str(bit) for bit in mejor_vector)
 
-        for i, p in enumerate(poblacion):
-            fit = fitness(binarioDecimal(p))
-            writer.writerow([generacion, i+1, fit, promedio, maximo, minimo, mejor_cromosoma])
+        writer.writerow([generacion, min_fitness, avg_fitness, max_fitness, mejor_cromosoma])
 
 def entrenamiento(pobl: Poblacion, iteraciones: int, use_torneo: bool = False) -> None:
     """
@@ -211,7 +205,12 @@ def entrenamiento(pobl: Poblacion, iteraciones: int, use_torneo: bool = False) -
 
         guardarDatosPoblacionCSV(pobl, i, "poblacion_ruleta.csv")
         padres_pares = torneo(pobl) if use_torneo else ruleta(pobl)
-        pobl = cruzarPoblacion(padres_pares, pobl)
+        pobl = cruzarPoblacion(padres_pares, pobl)        
+
+    mejor = max(pobl, key=lambda x: fitness(binarioDecimal(x)))
+    print("Mejor cromosoma final:", mejor)
+    print("Valor decimal:", binarioDecimal(mejor))
+    print("Fitness:", fitness(binarioDecimal(mejor)))
 
     # Gráfico de evolución
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -232,4 +231,4 @@ def entrenamiento(pobl: Poblacion, iteraciones: int, use_torneo: bool = False) -
 
 if __name__ == "__main__":
     pobl = generarPoblacion(TAMAÑO_DE_LA_POBLACION)
-    entrenamiento(pobl, CANTIDAD_DE_ITERACIONES, use_torneo=False)  # Set use_torneo=True for tournament selection
+    entrenamiento(pobl, CANTIDAD_DE_ITERACIONES, use_torneo=False)  
