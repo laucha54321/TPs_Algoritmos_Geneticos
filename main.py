@@ -15,7 +15,7 @@ TAMAÑO_DE_LA_POBLACION = variables["TAMAÑO_DE_LA_POBLACION"]
 CANTIDAD_DE_ITERACIONES = variables["CANTIDAD_DE_ITERACIONES"]
 COEF = variables["COEF"]
 TAMAÑO_TORNEO = variables["TAMAÑO_TORNEO"]
-N_ELITISMO = variables["N_ELITISMO"]
+N_ELITISMO = 0
 
 
 
@@ -219,7 +219,7 @@ def entrenamiento(pobl: Poblacion, iteraciones: int, use_torneo: bool = False) -
     ax.plot(generations, min_, label='Min')
 
     metodo = "TORNEO" if use_torneo else "RULETA"
-    titulo = f"{metodo} - Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES} - Prob.Mutacion: {PROBABILIDAD_DE_MUTACION} - Prob. Crossover: {PROBABILIDAD_DE_CROSSOVER} - Elitismo: {N_ELITISMO}"
+    titulo = f"{metodo} - Pobl Size: {TAMAÑO_DE_LA_POBLACION} - Vect Len: {LONGITUD_DE_LOS_VECTORES} - Cant Iter: {CANTIDAD_DE_ITERACIONES} - Prob.Mutacion: {PROBABILIDAD_DE_MUTACION} - Prob. Crossover: {PROBABILIDAD_DE_CROSSOVER}"
     ax.set_title(titulo)
     ax.set_xlabel("Generación")
     ax.set_ylabel("Fitness")

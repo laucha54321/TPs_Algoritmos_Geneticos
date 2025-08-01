@@ -220,28 +220,6 @@ def fitnessRelativoPoblacion(poblacionDecimal: Poblacion) -> list[float]:
 
     return listaRelativos
 
-# def cruzarPoblacion(padresPares:list[Vector, Vector])->Poblacion:
-#     """
-#     Con los pares de padres genera la siguiente generacion de individuos
-
-#     Args:
-#         padresPares (list[Vecto, Vector]): Pares de padres de la poblacion.
-#     Returns:
-#         Poblacion: Siguiente generacion de vectores despues de ser cruzados.
-#     """
-#     poblacionResultante: list[Vector, Vector] = []
-
-#     for par in padresPares:
-#         hijosPares = []
-#         hijosPares.append(crossover(par[0],par[1]))
-#         for a in hijosPares:
-#             poblacionResultante.append(a[0])
-#             poblacionResultante.append(a[1])
-    
-#     for i in range(len(poblacionResultante)):
-#         poblacionResultante[i] = mutacionInvertida(poblacionResultante[i])
-
-#     return poblacionResultante
 
 def cruzarPoblacion(padresPares: list[tuple[Vector, Vector]]) -> Poblacion:
     """

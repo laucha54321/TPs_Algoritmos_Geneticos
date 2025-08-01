@@ -92,24 +92,6 @@ def fitnessRelativoPoblacion(poblacionDecimal: list[float]) -> list[float]:
         return [1.0 / len(poblacionDecimal)] * len(poblacionDecimal)
     return [f / total_fitness for f in fitness_values]
 
-# def ruleta(poblacion: Poblacion) -> list[list[Vector]]:
-#     poblacionDecimal = [binarioDecimal(p) for p in poblacion]
-#     fitnessAcumulado = [0]
-#     for f in fitnessRelativoPoblacion(poblacionDecimal):
-#         fitnessAcumulado.append(fitnessAcumulado[-1] + f)
-
-#     CANTIDAD_DE_PARES = len(poblacion) // 2
-#     padresParesBinario = []
-#     for _ in range(CANTIDAD_DE_PARES):
-#         par = []
-#         for _ in range(2):
-#             r = random.random()
-#             for i in range(len(fitnessAcumulado) - 1):
-#                 if fitnessAcumulado[i] <= r < fitnessAcumulado[i + 1]:
-#                     par.append(poblacion[i])
-#                     break
-#         padresParesBinario.append(par)
-#     return padresParesBinario
 
 def ruleta(poblacion: Poblacion) -> list[tuple[Vector, Vector]]:
     """
@@ -159,54 +141,7 @@ def cruzarPoblacion(padresPares: list[tuple[Vector, Vector]]) -> Poblacion:
 
     return nueva_poblacion
 
-# def ruletaElitismo(poblacion: Poblacion, n_elit: int) -> Poblacion:
-#     """Roulette with elitism, preserving top n_elit and generating 6 offspring."""
-#     if not poblacion:
-#         return generarPoblacion(TAMAÑO_DE_LA_POBLACION, max_decimal=1024)
-    
-#     # Select top n_elit individuals
-#     fitness_values = [(fitness(binarioDecimal(p)), p) for p in poblacion]
-#     fitness_values.sort(reverse=True)
-#     elite = [ind for _, ind in fitness_values[:n_elit]]
-    
-#     # Non-elite population for selection
-#     non_elite_poblacion = [p for p in poblacion if p not in elite]
-#     if not non_elite_poblacion:
-#         non_elite_poblacion = poblacion  # Fallback to full population if elite takes all
-    
-#     # Generate exactly 6 offspring (3 pairs)
-#     nueva_poblacion = []
-#     for _ in range(3):  # Need 3 pairs to produce 6 offspring
-#         poblacionDecimal = [binarioDecimal(p) for p in non_elite_poblacion]
-#         fitnessAcumulado = [0]
-#         for f in fitnessRelativoPoblacion(poblacionDecimal):
-#             fitnessAcumulado.append(fitnessAcumulado[-1] + f)
-        
-#         parents = []
-#         for _ in range(2):  # Select 2 parents for a pair
-#             r = random.random()
-#             for i in range(len(fitnessAcumulado) - 1):
-#                 if fitnessAcumulado[i] <= r < fitnessAcumulado[i + 1]:
-#                     parents.append(non_elite_poblacion[i])
-#                     break
-#             else:
-#                 parents.append(non_elite_poblacion[-1])
-        
-#         if len(parents) == 2:
-#             hijo1, hijo2 = crossover(parents[0], parents[1])
-#             nueva_poblacion.append(mutacionInvertida(hijo1))
-#             nueva_poblacion.append(mutacionInvertida(hijo2))
-    
-#     # Combine elite with new offspring
-#     result = elite + nueva_poblacion
-    
-#     # Ensure population size is exactly 10
-#     while len(result) < TAMAÑO_DE_LA_POBLACION:
-#         new_vector = generarVector(N_ELITISMO, max_decimal=1024)
-#         if tuple(new_vector) not in {tuple(v) for v in result}:
-#             result.append(new_vector)
-    
-#     return result[:TAMAÑO_DE_LA_POBLACION]   
+
 def ruletaElitismo(poblacion: Poblacion, n_elit: int) -> Poblacion:
     if not poblacion:
         return generarPoblacion(TAMAÑO_DE_LA_POBLACION)
@@ -215,9 +150,7 @@ def ruletaElitismo(poblacion: Poblacion, n_elit: int) -> Poblacion:
     fitness_values.sort(reverse=True)
     elite = [ind for _, ind in fitness_values[:n_elit]]
 
-    non_elite = [p for p in poblacion if p not in elite]
-    if not non_elite:
-        non_elite = poblacion
+    non_elite = poblacion
 
     nueva_poblacion = []
     while len(nueva_poblacion) < TAMAÑO_DE_LA_POBLACION - n_elit:
