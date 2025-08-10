@@ -159,30 +159,63 @@ def formatearExahustivo(problema):
 
     return tabla, headers
 
+def formatearGoloso(problema):
+    solucion_greedy = goloso(problema)
+    # Construir tabla
+    tabla = []
+    for articulo in solucion_greedy:
+        tabla.append({
+            "ID": articulo["id"],
+            "Valor": articulo["valor"],
+            "Cantidad Restricción": articulo["cantidadRestriccion"],
+            "Valor Relativo": articulo["valorRelativo"]
+        })
+    
+    # Calcular totales
+    valor_total = sum(a["valor"] for a in solucion_greedy)
+    cantidad_total = sum(a["cantidadRestriccion"] for a in solucion_greedy)
+    
+    # Agregar fila de totales
+    tabla.append({
+        "ID": "TOTAL",
+        "Valor": valor_total,
+        "Cantidad Restricción": cantidad_total,
+        "Valor Relativo": ""
+    })
+
+    return tabla
 
 print('\n')
-print("==================== Solucion Unica ==============================")
-print("==================== Algoritmo Greedy ============================")
-print("==================== Problema 1  =================================")
-print(tabulate(goloso(problema1), headers="keys",tablefmt="fancy_grid", floatfmt=".4f"))
+print("==================================================================")
+print("|                    Solucion Unica                              |")
+print("|                    Algoritmo Greedy                            |")
+print("|                    Problema 1                                  |")
+print("==================================================================")
+print(tabulate(formatearGoloso(problema1), headers="keys",tablefmt="fancy_grid", floatfmt=".4f"))
 
-print('\n')
-print("==================== Solucion Unica ==============================")
-print("==================== Algoritmo Greedy ============================")
-print("==================== Problema 2  =================================")
-print(tabulate(goloso(problema2), headers="keys",tablefmt="fancy_grid", floatfmt=".4f"))
 tabla, headers = formatearExahustivo(problema1)
-
 print('\n')
-print("==================== Conjunto Solucion ===============================")
-print("==================== Algoritmo Exhaustivo ============================")
-print("==================== Problema 1 (10 mejores) =========================")
+print("==================================================================")
+print("|                    Conjunto Solucion                           |")
+print("|                    Algoritmo Exhaustivo                        |")
+print("|                    Problema 1 (10 mejores)                     |")
+print("==================================================================")
 print(tabulate(tabla, headers=headers, tablefmt="grid", stralign="center", numalign="right"))
 
+print('\n')
+print("==================================================================")
+print("|                    Solucion Unica                              |")
+print("|                    Algoritmo Greedy                            |")
+print("|                    Problema 2                                  |")
+print("==================================================================")
+print(tabulate(formatearGoloso(problema2), headers="keys",tablefmt="fancy_grid", floatfmt=".4f"))
 
 tabla, headers = formatearExahustivo(problema2)
 print('\n')
-print("==================== Conjunto Solucion ===============================")
-print("==================== Algoritmo Exhaustivo ============================")
-print("==================== Problema 2  =================================")
+print("==================================================================")
+print("|                    Conjunto Solucion                           |")
+print("|                    Algoritmo Exhaustivo                        |")
+print("|                    Problema 2                                  |")
+print("==================================================================")
 print(tabulate(tabla, headers, tablefmt="grid", stralign="center", numalign="right"))
+print('\n')
