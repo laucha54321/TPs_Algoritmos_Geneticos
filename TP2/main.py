@@ -111,19 +111,78 @@ def goloso(problema):
     return resolver(problema)
 
 def exhaustivo(problema):
-    print('')
+    posibilidades = []
+    soluciones  = []
+
+    def generarPosibilidades(articulos, solucionActual, indice):
+        if indice == len(articulos):
+            posibilidades.append(solucionActual.copy())
+            return
+
+        # No incluir el artículo actual
+        generarPosibilidades(articulos, solucionActual, indice + 1)
+
+        # Incluir el artículo actual
+        solucionActual.append(articulos[indice])
+        generarPosibilidades(articulos, solucionActual, indice + 1)
+        solucionActual.pop()  # Backtrack
+
+    generarPosibilidades(problema["articulos"], [], 0)
+
+    for posibilidad in posibilidades:
+        valorTotal = sum(art["valor"] for art in posibilidad)
+        cantidadRestriccionTotal = sum(art["cantidadRestriccion"] for art in posibilidad)
+        if cantidadRestriccionTotal <= problema["restricciones"]["cantidadRestringida"]:
+            soluciones.append((posibilidad, valorTotal, cantidadRestriccionTotal))
+
+    return soluciones
+
+def formatearExahustivo(problema):
+
+    soluciones = exhaustivo(problema)
+    soluciones_ordenadas = sorted(soluciones, key=lambda x: x[1],reverse=True)
+    soluciones_ordenadas = soluciones_ordenadas[:10]  # Tomar las 10 mejores soluciones
+
+    maxid = max(item['id'] for items, _, _ in soluciones_ordenadas for item in items)
+
+    # Build table rows
+    tabla = []
+    for items, total, cantidad in soluciones_ordenadas:
+        ids_included = {item['id'] for item in items}
+        fila = ["X" if i in ids_included else "" for i in range(1, maxid + 1)]
+        fila.append(total)
+        fila.append(cantidad)
+        tabla.append(fila)
+
+    # Headers: item IDs + Total
+    headers = [str(i) for i in range(1, maxid + 1)] + ["Valor Total"] + ["Cantidad Restriccion"]
+
+    return tabla, headers
+
 
 print('\n')
+print("==================== Solucion Unica ==============================")
 print("==================== Algoritmo Greedy ============================")
 print("==================== Problema 1  =================================")
 print(tabulate(goloso(problema1), headers="keys",tablefmt="fancy_grid", floatfmt=".4f"))
 
 print('\n')
+print("==================== Solucion Unica ==============================")
 print("==================== Algoritmo Greedy ============================")
 print("==================== Problema 2  =================================")
 print(tabulate(goloso(problema2), headers="keys",tablefmt="fancy_grid", floatfmt=".4f"))
+tabla, headers = formatearExahustivo(problema1)
 
 print('\n')
+print("==================== Conjunto Solucion ===============================")
 print("==================== Algoritmo Exhaustivo ============================")
-print("==================== Problema 1  =================================")
+print("==================== Problema 1 (10 mejores) =========================")
+print(tabulate(tabla, headers=headers, tablefmt="grid", stralign="center", numalign="right"))
 
+
+tabla, headers = formatearExahustivo(problema2)
+print('\n')
+print("==================== Conjunto Solucion ===============================")
+print("==================== Algoritmo Exhaustivo ============================")
+print("==================== Problema 2  =================================")
+print(tabulate(tabla, headers, tablefmt="grid", stralign="center", numalign="right"))
