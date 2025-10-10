@@ -322,10 +322,10 @@ class AlgoritmoGenetico:
 
 # ==================== VISUALIZACIÓN MEJORADA ====================
 def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2),
-                    guardar=None, mostrar_regreso=True) -> List[str]:
+                    mostrar_regreso=True):
     """
     Visualiza la ruta del TSP en un mapa proporcional.
-    Muestra la leyenda fuera del mapa (más espaciada) y agrega el recorrido numerado.
+    Muestra la leyenda fuera del mapa y agrega el recorrido numerado.
     """
     fig, ax = plt.subplots(figsize=figsize)
 
@@ -341,7 +341,6 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
         lat, lon = COORDENADAS[ruta[i]]
         lats.append(lat)
         lons.append(lon)
-    # incluir el regreso para los límites
     lat0, lon0 = COORDENADAS[ruta[0]]
     lats.append(lat0)
     lons.append(lon0)
@@ -353,11 +352,9 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
         lat1, lon1 = COORDENADAS[ciudad1]
         lat2, lon2 = COORDENADAS[ciudad2]
 
-        # Línea
         ax.plot([lon1, lon2], [lat1, lat2], color=color_linea,
                 linewidth=1.8, alpha=0.7, zorder=1)
 
-        # Flecha
         mid_lon = (lon1 + lon2) / 2
         mid_lat = (lat1 + lat2) / 2
         dx = lon2 - lon1
@@ -393,7 +390,6 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
     pad_lat = (lat_max - lat_min) * 0.12
     ax.set_xlim(lon_min - pad_lon, lon_max + pad_lon)
     ax.set_ylim(lat_min - pad_lat, lat_max + pad_lat)
-    #ax.set_aspect('equal', adjustable='box')
     ax.grid(True, alpha=0.25, linestyle='--')
 
     # Títulos
@@ -401,7 +397,7 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
     ax.set_ylabel('Latitud', fontsize=12, fontweight='bold')
     ax.set_title(titulo, fontsize=14, fontweight='bold', pad=12)
 
-    # Leyenda (más separada horizontalmente del mapa)
+    # Leyenda
     from matplotlib.lines import Line2D
     legend_elements = [
         Line2D([0], [0], marker='*', color='w', markerfacecolor=color_inicio,
@@ -410,17 +406,14 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
                markersize=8, label='Ciudades intermedias', markeredgecolor='white', markeredgewidth=1),
         Line2D([0], [0], color=color_linea, linewidth=1.8, label='Recorrido')
     ]
-
-    # bbox_to_anchor define el desplazamiento (x, y): cuanto mayor sea x, más lejos del gráfico
     ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(1.05, 1),
               fontsize=10, framealpha=0.9, borderaxespad=0.)
 
-    # Crear lista de recorrido
+    # Texto del recorrido
     lista_capitales = [CAPITALES[i] for i in ruta]
     if mostrar_regreso:
         lista_capitales.append(CAPITALES[ruta[0]])
 
-    # Texto del recorrido dentro del gráfico (debajo de la leyenda, más espaciado)
     recorrido_texto = "Recorrido:\n" + "\n".join(
         [f"{i+1}. {nombre}" for i, nombre in enumerate(lista_capitales)]
     )
@@ -429,14 +422,8 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
              bbox=dict(facecolor='white', edgecolor='gray', alpha=0.9),
              fontweight='bold')
 
-    # Ajustar espacio (reservar más a la derecha para las leyendas)
     plt.tight_layout()
     plt.subplots_adjust(right=0.72)
-
-    # Guardar si se pidió
-    if guardar:
-        plt.savefig(guardar, dpi=200, bbox_inches='tight')
-
     plt.show()
 
 
@@ -492,13 +479,24 @@ def listar_provincias():
             print(f"{i:2d}. {CAPITALES[i]}")
     print(f"{'='*70}\n")
 
+def mostrar_menu():
+    """Muestra el menú principal"""
+    print(f"\n{'='*70}")
+    print(" PROBLEMA DEL VIAJANTE - CAPITALES DE ARGENTINA")
+    print(f"{'='*70}")
+    print("1) Vecino más cercano desde una provincia específica")
+    print("2) Mejor vecino más cercano (probar todas las provincias)")
+    print("3) Algoritmo Genético")
+    print("0) Salir")
+    print(f"{'='*70}")
+
 def menu_principal():
     """Función principal con menú interactivo"""
     while True:
         mostrar_menu()
-        opcion = input("Seleccione una opción: ").strip().lower()
+        opcion = input("Seleccione una opción: ").strip()
         
-        if opcion == 'a':
+        if opcion == '1':
             listar_provincias()
             try:
                 ciudad = int(input("Ingrese el número de la ciudad de inicio (0-23): "))
@@ -509,11 +507,11 @@ def menu_principal():
                                f"HEURÍSTICA: VECINO MÁS CERCANO (desde {CAPITALES[ciudad]})")
                     visualizar_ruta(ruta, f"Vecino más cercano - Inicio: {CAPITALES[ciudad]}\nDistancia: {distancia:.2f} km")
                 else:
-                    print("Ciudad inválida. Debe ser un número entre 0 y 22.")
+                    print("Ciudad inválida. Debe ser un número entre 0 y 23.")
             except ValueError:
                 print("Error: Debe ingresar un número válido.")
         
-        elif opcion == 'b':
+        elif opcion == '2':
             print("\nBuscando la mejor ruta con vecino más cercano...")
             print("(Probando desde todas las ciudades)")
             ruta, distancia, ciudad_inicio = mejor_vecino_mas_cercano()
@@ -521,7 +519,7 @@ def menu_principal():
                         f"MEJOR VECINO MÁS CERCANO (óptimo local desde {CAPITALES[ciudad_inicio]})")
             visualizar_ruta(ruta, f"Mejor Vecino Más Cercano\nInicio: {CAPITALES[ciudad_inicio]} - Distancia: {distancia:.2f} km")
         
-        elif opcion == 'c':
+        elif opcion == '3':
             ag = AlgoritmoGenetico(tam_poblacion=50, num_generaciones=200, 
                                   prob_crossover=0.8, prob_mutacion=0.2)
             ruta, distancia = ag.evolucionar()
@@ -529,69 +527,12 @@ def menu_principal():
             visualizar_ruta(ruta, f"Algoritmo Genético\nDistancia: {distancia:.2f} km")
             graficar_convergencia(ag.mejor_ruta_historia)
         
-        elif opcion == 'd':
-            print("\n" + "="*70)
-            print("COMPARACIÓN DE TODOS LOS MÉTODOS")
-            print("="*70)
-            
-            # Vecino más cercano (mejor)
-            print("\n1. Ejecutando Vecino Más Cercano...")
-            ruta_vmc, dist_vmc, inicio_vmc = mejor_vecino_mas_cercano()
-            print(f"   ✓ Mejor distancia: {dist_vmc:.2f} km")
-            print(f"   ✓ Mejor inicio: {CAPITALES[inicio_vmc]}")
-            
-            # Algoritmo genético
-            print("\n2. Ejecutando Algoritmo Genético...")
-            ag = AlgoritmoGenetico(tam_poblacion=50, num_generaciones=200)
-            ruta_ag, dist_ag = ag.evolucionar()
-            print(f"   ✓ Distancia final: {dist_ag:.2f} km")
-            
-            # Resumen
-            print("\n" + "="*70)
-            print("RESUMEN DE RESULTADOS")
-            print("="*70)
-            print(f"Vecino Más Cercano:    {dist_vmc:.2f} km")
-            print(f"Algoritmo Genético:    {dist_ag:.2f} km")
-            mejora = ((dist_vmc - dist_ag) / dist_vmc) * 100
-            if mejora > 0:
-                print(f"\nMejora del AG: {mejora:.2f}% ✓")
-            else:
-                print(f"\nDiferencia: {abs(mejora):.2f}%")
-            print("="*70)
-            
-            # Visualizar ambas
-            visualizar_ruta(ruta_vmc, f"Vecino Más Cercano\nInicio: {CAPITALES[inicio_vmc]} - Distancia: {dist_vmc:.2f} km")
-            visualizar_ruta(ruta_ag, f"Algoritmo Genético\nDistancia: {dist_ag:.2f} km")
-            graficar_convergencia(ag.mejor_ruta_historia)
-        
-        elif opcion == 'e':
-            print(f"\n{'='*70}")
-            print("MATRIZ DE DISTANCIAS ENTRE CAPITALES (en kilómetros)")
-            print(f"{'='*70}\n")
-            print("Mostrando primeras 10 ciudades:\n")
-            
-            # Encabezado
-            print("     ", end="")
-            for i in range(min(10, len(CAPITALES))):
-                print(f"{i:6d}", end="")
-            print()
-            
-            # Filas
-            for i in range(min(10, len(CAPITALES))):
-                print(f"{i:2d} - ", end="")
-                for j in range(min(10, len(CAPITALES))):
-                    print(f"{int(MATRIZ_DISTANCIAS[i][j]):6d}", end="")
-                print(f"  {CAPITALES[i][:25]}")
-            
-            print(f"\n{'='*70}")
-            input("\nPresione Enter para continuar...")
-        
-        elif opcion == 's':
-            print("\n¡Hasta luego!")
+        elif opcion == '0':
             break
         
         else:
             print("\nOpción inválida. Por favor, intente nuevamente.")
+
 
 # ==================== EJECUCIÓN ====================
 if __name__ == "__main__":
