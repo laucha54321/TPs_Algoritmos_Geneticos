@@ -321,7 +321,7 @@ class AlgoritmoGenetico:
         return mejor_final, distancia_final
 
 # ==================== VISUALIZACIÓN MEJORADA ====================
-def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(28, 9),
+def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2),
                     guardar=None, mostrar_regreso=True) -> List[str]:
     """
     Visualiza la ruta del TSP en un mapa proporcional.
@@ -393,7 +393,7 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(28, 9),
     pad_lat = (lat_max - lat_min) * 0.12
     ax.set_xlim(lon_min - pad_lon, lon_max + pad_lon)
     ax.set_ylim(lat_min - pad_lat, lat_max + pad_lat)
-    ax.set_aspect('equal', adjustable='box')
+    #ax.set_aspect('equal', adjustable='box')
     ax.grid(True, alpha=0.25, linestyle='--')
 
     # Títulos
@@ -412,7 +412,7 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(28, 9),
     ]
 
     # bbox_to_anchor define el desplazamiento (x, y): cuanto mayor sea x, más lejos del gráfico
-    ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(1.18, 1),
+    ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(1.05, 1),
               fontsize=10, framealpha=0.9, borderaxespad=0.)
 
     # Crear lista de recorrido
@@ -424,7 +424,7 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(28, 9),
     recorrido_texto = "Recorrido:\n" + "\n".join(
         [f"{i+1}. {nombre}" for i, nombre in enumerate(lista_capitales)]
     )
-    plt.text(1.18, 0.02, recorrido_texto, transform=ax.transAxes,
+    plt.text(1.05, 0.02, recorrido_texto, transform=ax.transAxes,
              fontsize=9, va='bottom', ha='left',
              bbox=dict(facecolor='white', edgecolor='gray', alpha=0.9),
              fontweight='bold')
