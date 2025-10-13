@@ -4,7 +4,7 @@ from matplotlib.patches import FancyArrowPatch
 import random
 from typing import List, Tuple
 
-# ==================== DATOS DE LAS CAPITALES ====================
+# Capitales
 CAPITALES = {
     0: "Ciudad de Buenos Aires",
     1: "Córdoba",
@@ -32,7 +32,7 @@ CAPITALES = {
     23: "Viedma"
 }
 
-# Coordenadas aproximadas (latitud, longitud) para visualización
+# Coordenadas aproximadas 
 COORDENADAS = {
     0: (-34.6037, -58.3816),   # CABA
     1: (-31.4201, -64.1888),   # Córdoba
@@ -60,8 +60,8 @@ COORDENADAS = {
     23: (-40.8119, -62.9962)   #Viedma
 }
 
-# ==================== MATRIZ DE DISTANCIAS REAL ====================
-# Matriz proporcionada por el usuario (en kilómetros)
+
+# Tabla de distancias entre capitales (en km)
 MATRIZ_DISTANCIAS = np.array([
     [0, 646, 792, 933, 53, 986, 985, 989, 375, 834, 1127, 794, 2082, 979, 1080, 1334, 1282, 1005, 749, 393, 579, 939, 2373, 799],
     [646, 0, 677, 824, 698, 340, 466, 907, 348, 919, 1321, 669, 2281, 362, 517, 809, 745, 412, 293, 330, 577, 401, 2618, 1047],
@@ -89,9 +89,8 @@ MATRIZ_DISTANCIAS = np.array([
     [799, 1047, 1527, 1681, 789, 1311, 1019, 479, 1030, 1624, 327, 1526, 1294, 1391, 1562, 1855, 1790, 1141, 882, 1035,	477, 1446, 1605, 0]
 ])
 
-# ==================== FUNCIONES AUXILIARES ====================
-def calcular_distancia_total(ruta: List[int]) -> float:
-    """Calcula la distancia total de una ruta (incluyendo regreso)"""
+# Funciones Basicas
+def calcular_distancia_total(ruta: List[int]) -> float:    
     distancia = 0
     for i in range(len(ruta)):
         ciudad_actual = ruta[i]
@@ -99,8 +98,7 @@ def calcular_distancia_total(ruta: List[int]) -> float:
         distancia += MATRIZ_DISTANCIAS[ciudad_actual][ciudad_siguiente]
     return distancia
 
-def mostrar_ruta(ruta: List[int], distancia: float, titulo: str = "Ruta"):
-    """Muestra la información de una ruta"""
+def mostrar_ruta(ruta: List[int], distancia: float, titulo: str = "Ruta"):    
     print(f"\n{'='*70}")
     print(f"{titulo}")
     print(f"{'='*70}")
@@ -112,12 +110,8 @@ def mostrar_ruta(ruta: List[int], distancia: float, titulo: str = "Ruta"):
     print(f"\nDistancia total: {distancia:.2f} km")
     print(f"{'='*70}\n")
 
-# ==================== HEURÍSTICA: VECINO MÁS CERCANO ====================
+# Heuristica ciudad mas cercana no visitada
 def vecino_mas_cercano(ciudad_inicio: int) -> Tuple[List[int], float]:
-    """
-    Implementa la heurística del vecino más cercano
-    Desde cada ciudad va a la ciudad más cercana no visitada
-    """
     n = len(CAPITALES)
     visitadas = [False] * n
     ruta = [ciudad_inicio]
@@ -145,9 +139,6 @@ def vecino_mas_cercano(ciudad_inicio: int) -> Tuple[List[int], float]:
     return ruta, distancia_total
 
 def mejor_vecino_mas_cercano() -> Tuple[List[int], float, int]:
-    """
-    Prueba la heurística desde todas las ciudades y retorna la mejor
-    """
     mejor_ruta = None
     mejor_distancia = float('inf')
     mejor_inicio = 0
@@ -320,13 +311,9 @@ class AlgoritmoGenetico:
         
         return mejor_final, distancia_final
 
-# ==================== VISUALIZACIÓN MEJORADA ====================
+# Visualizacion
 def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2),
                     mostrar_regreso=True):
-    """
-    Visualiza la ruta del TSP en un mapa proporcional.
-    Muestra la leyenda fuera del mapa y agrega el recorrido numerado.
-    """
     fig, ax = plt.subplots(figsize=figsize)
 
     # Colores y estilos
@@ -453,20 +440,7 @@ def graficar_convergencia(historia: List[float]):
     plt.tight_layout()
     plt.show()
 
-# ==================== MENÚ PRINCIPAL ====================
-def mostrar_menu():
-    """Muestra el menú principal"""
-    print(f"\n{'='*70}")
-    print(" PROBLEMA DEL VIAJANTE - CAPITALES DE ARGENTINA")
-    print(f"{'='*70}")
-    print("a) Vecino más cercano desde una provincia específica")
-    print("b) Mejor vecino más cercano (probar todas las provincias)")
-    print("c) Algoritmo Genético")
-    print("d) Comparar todos los métodos")
-    print("e) Mostrar matriz de distancias")
-    print("s) Salir")
-    print(f"{'='*70}")
-
+#Menu
 def listar_provincias():
     """Lista todas las provincias disponibles"""
     print(f"\n{'='*70}")
@@ -479,10 +453,9 @@ def listar_provincias():
             print(f"{i:2d}. {CAPITALES[i]}")
     print(f"{'='*70}\n")
 
-def mostrar_menu():
-    """Muestra el menú principal"""
+def mostrar_menu():    
     print(f"\n{'='*70}")
-    print(" PROBLEMA DEL VIAJANTE - CAPITALES DE ARGENTINA")
+    print(" PROBLEMA DEL VIAJANTE")
     print(f"{'='*70}")
     print("1) Vecino más cercano desde una provincia específica")
     print("2) Mejor vecino más cercano (probar todas las provincias)")
@@ -491,7 +464,6 @@ def mostrar_menu():
     print(f"{'='*70}")
 
 def menu_principal():
-    """Función principal con menú interactivo"""
     while True:
         mostrar_menu()
         opcion = input("Seleccione una opción: ").strip()
@@ -501,10 +473,9 @@ def menu_principal():
             try:
                 ciudad = int(input("Ingrese el número de la ciudad de inicio (0-23): "))
                 if 0 <= ciudad < len(CAPITALES):
-                    print(f"\nCalculando ruta desde {CAPITALES[ciudad]}...")
+                    
                     ruta, distancia = vecino_mas_cercano(ciudad)
-                    mostrar_ruta(ruta, distancia, 
-                               f"HEURÍSTICA: VECINO MÁS CERCANO (desde {CAPITALES[ciudad]})")
+
                     visualizar_ruta(ruta, f"Vecino más cercano - Inicio: {CAPITALES[ciudad]}\nDistancia: {distancia:.2f} km")
                 else:
                     print("Ciudad inválida. Debe ser un número entre 0 y 23.")
@@ -512,11 +483,8 @@ def menu_principal():
                 print("Error: Debe ingresar un número válido.")
         
         elif opcion == '2':
-            print("\nBuscando la mejor ruta con vecino más cercano...")
-            print("(Probando desde todas las ciudades)")
+
             ruta, distancia, ciudad_inicio = mejor_vecino_mas_cercano()
-            mostrar_ruta(ruta, distancia, 
-                        f"MEJOR VECINO MÁS CERCANO (óptimo local desde {CAPITALES[ciudad_inicio]})")
             visualizar_ruta(ruta, f"Mejor Vecino Más Cercano\nInicio: {CAPITALES[ciudad_inicio]} - Distancia: {distancia:.2f} km")
         
         elif opcion == '3':
@@ -534,6 +502,5 @@ def menu_principal():
             print("\nOpción inválida. Por favor, intente nuevamente.")
 
 
-# ==================== EJECUCIÓN ====================
 if __name__ == "__main__":
     menu_principal()
