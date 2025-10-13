@@ -160,13 +160,12 @@ PROB_CROSSOVER = 0.8   # Probabilidad de aplicar crossover
 PROB_MUTACION = 0.2    # Probabilidad de aplicar mutación (inversión)
 NUM_CIUDADES = len(CAPITALES)  # 24
 
-# Estado global (historia y población)
+# Estado global 
 mejor_ruta_historia: List[float] = []
 poblacion_global: List[List[int]] = []
 
-# ======= FUNCIONES DEL AG (sin clases) =======
-def crear_individuo() -> List[int]:
-    """Genera un cromosoma: permutación aleatoria de 0..NUM_CIUDADES-1"""
+# ======= FUNCIONES DEL AG =======
+def crear_individuo() -> List[int]:    
     individuo = list(range(NUM_CIUDADES))
     random.shuffle(individuo)
     return individuo
@@ -182,8 +181,7 @@ def seleccion_torneo(poblacion: List[List[int]], k: int = 3) -> List[int]:
     torneo = random.sample(poblacion, k)
     return max(torneo, key=fitness)
 
-def crossover_ciclico(padre1: List[int], padre2: List[int]) -> Tuple[List[int], List[int]]:
-    """Cycle Crossover (CX) — devuelve dos hijos válidos (0..23)"""
+def crossover_ciclico(padre1: List[int], padre2: List[int]) -> Tuple[List[int], List[int]]:    
     n = len(padre1)
     hijo1 = [-1] * n
     hijo2 = [-1] * n
@@ -223,8 +221,7 @@ def crossover_ciclico(padre1: List[int], padre2: List[int]) -> Tuple[List[int], 
     hijo2 = rellenar(hijo2, padre1)
     return hijo1, hijo2
 
-def mutacion_inversion(individuo: List[int]) -> List[int]:
-    """Mutación por inversión (aplicada según PROB_MUTACION)"""
+def mutacion_inversion(individuo: List[int]) -> List[int]:    
     if random.random() < PROB_MUTACION:
         individuo = individuo.copy()
         i, j = sorted(random.sample(range(len(individuo)), 2))
@@ -232,11 +229,6 @@ def mutacion_inversion(individuo: List[int]) -> List[int]:
     return individuo
 
 def evolucionar() -> Tuple[List[int], float]:
-    """
-    Ejecuta el AG usando variables globales.
-    Genera un CSV con columnas: gen, mejor_dist, mejor_individuo.
-    No imprime nada por consola.
-    """
     global poblacion_global, mejor_ruta_historia
 
     poblacion = crear_poblacion_inicial()
