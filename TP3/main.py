@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch
 import random
 from typing import List, Tuple
+import csv
 
 # Capitales
 CAPITALES = {
@@ -153,163 +154,154 @@ def mejor_vecino_mas_cercano() -> Tuple[List[int], float, int]:
     return mejor_ruta, mejor_distancia, mejor_inicio
 
 # ==================== ALGORITMO GENÉTICO ====================
-class AlgoritmoGenetico:
-    def __init__(self, tam_poblacion=50, num_generaciones=200, 
-                 prob_crossover=0.8, prob_mutacion=0.2):
-        self.tam_poblacion = tam_poblacion
-        self.num_generaciones = num_generaciones
-        self.prob_crossover = prob_crossover
-        self.prob_mutacion = prob_mutacion
-        self.num_ciudades = len(CAPITALES)
-        self.mejor_ruta_historia = []
-        
-    def crear_individuo(self) -> List[int]:
-        """Crea un cromosoma (permutación aleatoria de ciudades)"""
-        individuo = list(range(self.num_ciudades))
-        random.shuffle(individuo)
-        return individuo
-    
-    def crear_poblacion_inicial(self) -> List[List[int]]:
-        """Crea la población inicial de cromosomas"""
-        return [self.crear_individuo() for _ in range(self.tam_poblacion)]
-    
-    def fitness(self, individuo: List[int]) -> float:
-        """
-        Calcula el fitness de un individuo
-        Mayor fitness = mejor (inverso de la distancia)
-        """
-        distancia = calcular_distancia_total(individuo)
-        return 1 / distancia if distancia > 0 else 0
-    
-    def seleccion_torneo(self, poblacion: List[List[int]], k=3) -> List[int]:
-        """Selección por torneo"""
-        torneo = random.sample(poblacion, k)
-        return max(torneo, key=self.fitness)
-    
-    def crossover_ciclico(self, padre1: List[int], padre2: List[int]) -> Tuple[List[int], List[int]]:
-        """
-        Implementa crossover cíclico (Cycle Crossover - CX)
-        Preserva la posición de los genes de los padres
-        """
-        n = len(padre1)
-        hijo1 = [-1] * n
-        hijo2 = [-1] * n
-        
-        # Encontrar ciclos
-        visitados = [False] * n
-        es_ciclo_par = True
-        
-        for inicio in range(n):
-            if not visitados[inicio]:
-                # Comenzar un nuevo ciclo
-                indice = inicio
-                ciclo = []
-                
-                while not visitados[indice]:
-                    visitados[indice] = True
-                    ciclo.append(indice)
-                    # Buscar el valor de padre1[indice] en padre2
-                    valor = padre1[indice]
-                    indice = padre2.index(valor)
-                
-                # Alternar entre padres para cada ciclo
-                if es_ciclo_par:
-                    for idx in ciclo:
-                        hijo1[idx] = padre1[idx]
-                        hijo2[idx] = padre2[idx]
-                else:
-                    for idx in ciclo:
-                        hijo1[idx] = padre2[idx]
-                        hijo2[idx] = padre1[idx]
-                
-                es_ciclo_par = not es_ciclo_par
-        
-        return hijo1, hijo2
-    
-    def mutacion_swap(self, individuo: List[int]) -> List[int]:
-        """Mutación por intercambio de dos genes"""
-        if random.random() < self.prob_mutacion:
-            individuo = individuo.copy()
-            i, j = random.sample(range(len(individuo)), 2)
-            individuo[i], individuo[j] = individuo[j], individuo[i]
-        return individuo
-    
-    def mutacion_inversion(self, individuo: List[int]) -> List[int]:
-        """Mutación por inversión de un segmento"""
-        if random.random() < self.prob_mutacion:
-            individuo = individuo.copy()
-            i, j = sorted(random.sample(range(len(individuo)), 2))
-            individuo[i:j+1] = reversed(individuo[i:j+1])
-        return individuo
-    
-    def evolucionar(self) -> Tuple[List[int], float]:
-        """Ejecuta el algoritmo genético completo"""
-        print(f"\n{'='*70}")
-        print("INICIANDO ALGORITMO GENÉTICO")
-        print(f"{'='*70}")
-        print(f"Parámetros:")
-        print(f"  - Tamaño de población: {self.tam_poblacion}")
-        print(f"  - Número de generaciones: {self.num_generaciones}")
-        print(f"  - Probabilidad de crossover: {self.prob_crossover}")
-        print(f"  - Probabilidad de mutación: {self.prob_mutacion}")
-        print(f"{'='*70}\n")
-        
-        # Crear población inicial
-        poblacion = self.crear_poblacion_inicial()
-        self.mejor_ruta_historia = []
-        
-        for generacion in range(self.num_generaciones):
-            # Evaluar población
-            fitness_poblacion = [(ind, self.fitness(ind)) for ind in poblacion]
-            fitness_poblacion.sort(key=lambda x: x[1], reverse=True)
-            
-            # Guardar mejor individuo
-            mejor_individuo = fitness_poblacion[0][0]
-            mejor_distancia = calcular_distancia_total(mejor_individuo)
-            self.mejor_ruta_historia.append(mejor_distancia)
-            
-            # Mostrar progreso cada 20 generaciones
-            if (generacion + 1) % 20 == 0 or generacion == 0:
-                print(f"Generación {generacion + 1:3d}: Mejor distancia = {mejor_distancia:.2f} km")
-            
-            # Crear nueva población
-            nueva_poblacion = []
-            
-            # Elitismo: mantener los mejores 2 individuos
-            nueva_poblacion.extend([fitness_poblacion[0][0], fitness_poblacion[1][0]])
-            
-            # Generar resto de la población
-            while len(nueva_poblacion) < self.tam_poblacion:
-                # Selección
-                padre1 = self.seleccion_torneo(poblacion)
-                padre2 = self.seleccion_torneo(poblacion)
-                
-                # Crossover
-                if random.random() < self.prob_crossover:
-                    hijo1, hijo2 = self.crossover_ciclico(padre1, padre2)
-                else:
-                    hijo1, hijo2 = padre1.copy(), padre2.copy()
-                
-                # Mutación (alternando entre swap e inversión)
-                hijo1 = self.mutacion_swap(hijo1)
-                hijo2 = self.mutacion_inversion(hijo2)
-                
-                nueva_poblacion.extend([hijo1, hijo2])
-            
-            # Recortar si excede el tamaño
-            poblacion = nueva_poblacion[:self.tam_poblacion]
-        
-        # Retornar mejor solución final
-        fitness_final = [(ind, self.fitness(ind)) for ind in poblacion]
-        fitness_final.sort(key=lambda x: x[1], reverse=True)
-        mejor_final = fitness_final[0][0]
-        distancia_final = calcular_distancia_total(mejor_final)
-        
-        print(f"\n{'='*70}")
-        print(f"ALGORITMO GENÉTICO FINALIZADO")
-        print(f"{'='*70}\n")
-        
-        return mejor_final, distancia_final
+N = 50                 # Tamaño de la población (número de cromosomas)
+M = 200                # Número de generaciones (cantidad de ciclos)
+PROB_CROSSOVER = 0.8   # Probabilidad de aplicar crossover
+PROB_MUTACION = 0.2    # Probabilidad de aplicar mutación (inversión)
+NUM_CIUDADES = len(CAPITALES)  # 24
+
+# Estado global (historia y población)
+mejor_ruta_historia: List[float] = []
+poblacion_global: List[List[int]] = []
+
+# ======= FUNCIONES DEL AG (sin clases) =======
+def crear_individuo() -> List[int]:
+    """Genera un cromosoma: permutación aleatoria de 0..NUM_CIUDADES-1"""
+    individuo = list(range(NUM_CIUDADES))
+    random.shuffle(individuo)
+    return individuo
+
+def crear_poblacion_inicial() -> List[List[int]]:
+    return [crear_individuo() for _ in range(N)]
+
+def fitness(individuo: List[int]) -> float:
+    distancia = calcular_distancia_total(individuo)
+    return 1 / distancia if distancia > 0 else 0
+
+def seleccion_torneo(poblacion: List[List[int]], k: int = 3) -> List[int]:
+    torneo = random.sample(poblacion, k)
+    return max(torneo, key=fitness)
+
+def crossover_ciclico(padre1: List[int], padre2: List[int]) -> Tuple[List[int], List[int]]:
+    """Cycle Crossover (CX) — devuelve dos hijos válidos (0..23)"""
+    n = len(padre1)
+    hijo1 = [-1] * n
+    hijo2 = [-1] * n
+    visitados = [False] * n
+    es_ciclo_par = True
+
+    for inicio in range(n):
+        if not visitados[inicio]:
+            indice = inicio
+            ciclo = []
+            while not visitados[indice]:
+                visitados[indice] = True
+                ciclo.append(indice)
+                valor = padre1[indice]
+                indice = padre2.index(valor)
+
+            if es_ciclo_par:
+                for idx in ciclo:
+                    hijo1[idx] = padre1[idx]
+                    hijo2[idx] = padre2[idx]
+            else:
+                for idx in ciclo:
+                    hijo1[idx] = padre2[idx]
+                    hijo2[idx] = padre1[idx]
+
+            es_ciclo_par = not es_ciclo_par
+
+    # Rellenar huecos (-1) con los valores que faltan (manteniendo permutación)
+    def rellenar(hijo, padre):
+        faltantes = [g for g in padre if g not in hijo]
+        for i in range(n):
+            if hijo[i] == -1:
+                hijo[i] = faltantes.pop(0)
+        return hijo
+
+    hijo1 = rellenar(hijo1, padre2)
+    hijo2 = rellenar(hijo2, padre1)
+    return hijo1, hijo2
+
+def mutacion_inversion(individuo: List[int]) -> List[int]:
+    """Mutación por inversión (aplicada según PROB_MUTACION)"""
+    if random.random() < PROB_MUTACION:
+        individuo = individuo.copy()
+        i, j = sorted(random.sample(range(len(individuo)), 2))
+        individuo[i:j+1] = list(reversed(individuo[i:j+1]))
+    return individuo
+
+def evolucionar() -> Tuple[List[int], float]:
+    """
+    Ejecuta el AG usando variables globales.
+    Genera un CSV con columnas: gen, mejor_dist, mejor_individuo.
+    No imprime nada por consola.
+    """
+    global poblacion_global, mejor_ruta_historia
+
+    poblacion = crear_poblacion_inicial()
+    poblacion_global = poblacion
+    mejor_ruta_historia = []
+
+    registros = []
+    mejor_global = float("inf")
+
+    for generacion in range(M):
+        distancias = [calcular_distancia_total(ind) for ind in poblacion]
+        idx_mejor = distancias.index(min(distancias))
+        mejor_recorrido = poblacion[idx_mejor]
+        mejor_distancia = distancias[idx_mejor]
+        mejor_ruta_historia.append(mejor_distancia)
+
+        # Guardar mejor global
+        if mejor_distancia < mejor_global:
+            mejor_global = mejor_distancia
+
+        # Registrar datos para CSV
+        registros.append({
+            "gen": generacion + 1,
+            "mejor_dist": mejor_distancia,
+            "mejor_recorrido": "-".join(map(str, mejor_recorrido))
+        })
+
+        # Nueva población con elitismo
+        fitness_poblacion = [(ind, fitness(ind)) for ind in poblacion]
+        fitness_poblacion.sort(key=lambda x: x[1], reverse=True)
+
+        nueva_poblacion = [fitness_poblacion[0][0], fitness_poblacion[1][0]]
+
+        while len(nueva_poblacion) < N:
+            padre1 = seleccion_torneo(poblacion)
+            padre2 = seleccion_torneo(poblacion)
+
+            if random.random() < PROB_CROSSOVER:
+                hijo1, hijo2 = crossover_ciclico(padre1, padre2)
+            else:
+                hijo1, hijo2 = padre1.copy(), padre2.copy()
+
+            hijo1 = mutacion_inversion(hijo1)
+            hijo2 = mutacion_inversion(hijo2)
+            nueva_poblacion.extend([hijo1, hijo2])
+
+        poblacion = nueva_poblacion[:N]
+
+    # Guardar CSV final
+    with open("evolucion.csv", mode="w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=["gen", "mejor_dist", "mejor_recorrido"])
+        writer.writeheader()
+        writer.writerows(registros)
+
+    # Resultado final
+    fitness_final = [(ind, fitness(ind)) for ind in poblacion]
+    fitness_final.sort(key=lambda x: x[1], reverse=True)
+    mejor_final = fitness_final[0][0]
+    distancia_final = calcular_distancia_total(mejor_final)
+
+    poblacion_global = poblacion
+
+    return mejor_final, distancia_final
+
+
 
 # Visualizacion
 def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2),
@@ -487,13 +479,10 @@ def menu_principal():
             ruta, distancia, ciudad_inicio = mejor_vecino_mas_cercano()
             visualizar_ruta(ruta, f"Mejor Vecino Más Cercano\nInicio: {CAPITALES[ciudad_inicio]} - Distancia: {distancia:.2f} km")
         
-        elif opcion == '3':
-            ag = AlgoritmoGenetico(tam_poblacion=50, num_generaciones=200, 
-                                  prob_crossover=0.8, prob_mutacion=0.2)
-            ruta, distancia = ag.evolucionar()
-            mostrar_ruta(ruta, distancia, "ALGORITMO GENÉTICO (solución optimizada)")
+        elif opcion == '3':            
+            ruta, distancia = evolucionar()            
             visualizar_ruta(ruta, f"Algoritmo Genético\nDistancia: {distancia:.2f} km")
-            graficar_convergencia(ag.mejor_ruta_historia)
+            graficar_convergencia(mejor_ruta_historia)
         
         elif opcion == '0':
             break
