@@ -518,7 +518,7 @@ def menu_principal():
                     
                     ruta, distancia = vecino_mas_cercano(ciudad)
 
-                    visualizar_ruta(ruta, f"Vecino más cercano - Inicio: {CAPITALES[ciudad]}\nDistancia: {distancia:.2f} km")
+                    visualizar_ruta_cartopy(ruta, f"Vecino más cercano - Inicio: {CAPITALES[ciudad]}\nDistancia: {distancia:.2f} km")
                 else:
                     print("Ciudad inválida. Debe ser un número entre 0 y 23.")
             except ValueError:
@@ -527,7 +527,7 @@ def menu_principal():
         elif opcion == '2':
 
             ruta, distancia, ciudad_inicio = mejor_vecino_mas_cercano()
-            visualizar_ruta(ruta, f"Mejor Vecino Más Cercano\nInicio: {CAPITALES[ciudad_inicio]} - Distancia: {distancia:.2f} km")
+            visualizar_ruta_cartopy(ruta, f"Mejor Vecino Más Cercano\nInicio: {CAPITALES[ciudad_inicio]} - Distancia: {distancia:.2f} km")
         
         elif opcion == '3':            
             ruta, distancia = evolucionar()            
