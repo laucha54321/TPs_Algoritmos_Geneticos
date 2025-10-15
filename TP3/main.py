@@ -155,7 +155,7 @@ def mejor_vecino_mas_cercano() -> Tuple[List[int], float, int]:
     
     return mejor_ruta, mejor_distancia, mejor_inicio
 
-# ==================== ALGORITMO GENÉTICO ====================
+# Algoritmo Genetico
 N = 50                 # Tamaño de la población (número de cromosomas)
 M = 200                # Número de generaciones (cantidad de ciclos)
 PROB_CROSSOVER = 0.8   # Probabilidad de aplicar crossover
@@ -166,7 +166,6 @@ NUM_CIUDADES = len(CAPITALES)  # 24
 mejor_ruta_historia: List[float] = []
 poblacion_global: List[List[int]] = []
 
-# ======= FUNCIONES DEL AG =======
 def crear_individuo() -> List[int]:    
     individuo = list(range(NUM_CIUDADES))
     random.shuffle(individuo)
@@ -531,7 +530,7 @@ def menu_principal():
         
         elif opcion == '3':            
             ruta, distancia = evolucionar()            
-            visualizar_ruta_cartopy(ruta, f"Algoritmo Genético - Distancia: {distancia:.2f} km")
+            visualizar_ruta_cartopy(ruta, f"Algoritmo Genético - Distancia: {distancia:.2f} km")            
             graficar_convergencia(mejor_ruta_historia)
         
         elif opcion == '0':
