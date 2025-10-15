@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 import random
 from typing import List, Tuple
 import csv
@@ -296,8 +298,8 @@ def evolucionar() -> Tuple[List[int], float]:
 
 
 # Visualizacion
-def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2),
-                    mostrar_regreso=True):
+def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 10),
+                    mostrar_regreso=True, guardar=False, nombre_archivo="ruta_tsp.png"):
     fig, ax = plt.subplots(figsize=figsize)
 
     # Colores y estilos
@@ -337,7 +339,7 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
                                alpha=0.9, zorder=2)
         ax.add_patch(arrow)
 
-    # Dibujar ciudades y etiquetas
+    # Dibujar ciudades y etiquetas con coordenadas
     for idx, ciudad_id in enumerate(ruta):
         lat, lon = COORDENADAS[ciudad_id]
         if idx == 0:
@@ -348,8 +350,8 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
                     markersize=9, zorder=5, markeredgecolor='white', markeredgewidth=1)
 
         nombre_corto = CAPITALES[ciudad_id].replace("S.F.d V.d. ", "").replace("S.M. de ", "").replace("S.S. de ", "")
-        texto = f'[{idx+1}] {nombre_corto}'
-        ax.text(lon, lat, texto, fontsize=8, fontweight='bold',
+        texto = f'[{idx+1}] {nombre_corto}\n({lat:.4f}, {lon:.4f})'
+        ax.text(lon, lat, texto, fontsize=9, fontweight='bold',
                 color=color_texto, ha='left', va='bottom', zorder=6,
                 bbox=dict(boxstyle='round,pad=0.25', facecolor='white',
                           edgecolor='gray', alpha=0.85))
@@ -363,10 +365,15 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
     ax.set_ylim(lat_min - pad_lat, lat_max + pad_lat)
     ax.grid(True, alpha=0.25, linestyle='--')
 
+    # Formato decimal en los ejes
+    from matplotlib.ticker import FuncFormatter
+    ax.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:.4f}"))
+    ax.yaxis.set_major_formatter(FuncFormatter(lambda y, _: f"{y:.4f}"))
+
     # Títulos
-    ax.set_xlabel('Longitud', fontsize=12, fontweight='bold')
-    ax.set_ylabel('Latitud', fontsize=12, fontweight='bold')
-    ax.set_title(titulo, fontsize=14, fontweight='bold', pad=12)
+    ax.set_xlabel('Longitud', fontsize=14, fontweight='bold')
+    ax.set_ylabel('Latitud', fontsize=14, fontweight='bold')
+    ax.set_title(titulo, fontsize=16, fontweight='bold', pad=20)
 
     # Leyenda
     from matplotlib.lines import Line2D
@@ -378,7 +385,7 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
         Line2D([0], [0], color=color_linea, linewidth=1.8, label='Recorrido')
     ]
     ax.legend(handles=legend_elements, loc='upper left', bbox_to_anchor=(1.05, 1),
-              fontsize=10, framealpha=0.9, borderaxespad=0.)
+              fontsize=11, framealpha=0.9, borderaxespad=0.)
 
     # Texto del recorrido
     lista_capitales = [CAPITALES[i] for i in ruta]
@@ -389,14 +396,65 @@ def visualizar_ruta(ruta: List[int], titulo: str = "Ruta TSP", figsize=(25, 6.2)
         [f"{i+1}. {nombre}" for i, nombre in enumerate(lista_capitales)]
     )
     plt.text(1.05, 0.02, recorrido_texto, transform=ax.transAxes,
-             fontsize=9, va='bottom', ha='left',
+             fontsize=10, va='bottom', ha='left',
              bbox=dict(facecolor='white', edgecolor='gray', alpha=0.9),
              fontweight='bold')
 
     plt.tight_layout()
     plt.subplots_adjust(right=0.72)
+
+    # Guardar imagen si se solicita
+    if guardar:
+        plt.savefig(nombre_archivo, dpi=300, bbox_inches='tight')
+
     plt.show()
 
+def visualizar_ruta_cartopy(ruta: List[int], titulo: str = "Ruta TSP sobre mapa de Argentina"):
+    fig = plt.figure(figsize=(10, 12))
+    ax = plt.axes(projection=ccrs.PlateCarree())
+
+    # Limitar a Argentina
+    ax.set_extent([-75, -53, -56, -21], crs=ccrs.PlateCarree())
+
+    # Agregar elementos geográficos
+    ax.add_feature(cfeature.LAND, facecolor='lightgray')
+    ax.add_feature(cfeature.OCEAN, facecolor='lightblue')
+    ax.add_feature(cfeature.BORDERS, linewidth=1)
+    ax.add_feature(cfeature.COASTLINE, linewidth=0.5)
+    ax.add_feature(cfeature.LAKES, facecolor='lightblue')
+    ax.add_feature(cfeature.RIVERS, edgecolor='blue')
+
+    # Dibujar recorrido con flechas
+    for i in range(len(ruta)):
+        ciudad1 = ruta[i]
+        ciudad2 = ruta[(i + 1) % len(ruta)]
+        lat1, lon1 = COORDENADAS[ciudad1]
+        lat2, lon2 = COORDENADAS[ciudad2]
+
+        # Línea base
+        ax.plot([lon1, lon2], [lat1, lat2], color='blue', linewidth=1.5,
+                transform=ccrs.PlateCarree())
+
+        # Flecha direccional
+        dx = lon2 - lon1
+        dy = lat2 - lat1
+        arrow = FancyArrowPatch((lon1, lat1), (lon2, lat2),
+                                transform=ccrs.PlateCarree(),
+                                arrowstyle='->', color='blue',
+                                mutation_scale=12, linewidth=1.5)
+        ax.add_patch(arrow)
+
+    # Marcar ciudades
+    for idx, ciudad_id in enumerate(ruta):
+        lat, lon = COORDENADAS[ciudad_id]
+        nombre = CAPITALES[ciudad_id].replace("S.F.d V.d. ", "").replace("S.M. de ", "").replace("S.S. de ", "")
+        ax.plot(lon, lat, 'ro', markersize=5, transform=ccrs.PlateCarree())
+        ax.text(lon + 0.2, lat + 0.2, f"{idx+1}. {nombre}", fontsize=8,
+                transform=ccrs.PlateCarree(), bbox=dict(facecolor='white', alpha=0.7))
+
+    ax.set_title(titulo, fontsize=14, fontweight='bold')
+    plt.tight_layout()
+    plt.show()
 
 def graficar_convergencia(historia: List[float]):
     """Grafica la evolución del algoritmo genético"""
@@ -473,7 +531,7 @@ def menu_principal():
         
         elif opcion == '3':            
             ruta, distancia = evolucionar()            
-            visualizar_ruta(ruta, f"Algoritmo Genético\nDistancia: {distancia:.2f} km")
+            visualizar_ruta_cartopy(ruta, f"Algoritmo Genético - Distancia: {distancia:.2f} km")
             graficar_convergencia(mejor_ruta_historia)
         
         elif opcion == '0':
